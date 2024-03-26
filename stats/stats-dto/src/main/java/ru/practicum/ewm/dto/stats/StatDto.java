@@ -1,0 +1,13 @@
+package ru.practicum.ewm.dto.stats;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class StatDto {
+
+    public static void main(String[] args) {
+        SpringApplication.run(StatDto.class, args);
+    }
+
+}
