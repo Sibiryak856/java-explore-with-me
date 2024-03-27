@@ -10,6 +10,6 @@ public interface StatService {
 
     void save(StatDataCreateDto createDto);
 
-    StatDataDto findAllByQuery(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
+    List<StatDataDto> getHits(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
 
 }
