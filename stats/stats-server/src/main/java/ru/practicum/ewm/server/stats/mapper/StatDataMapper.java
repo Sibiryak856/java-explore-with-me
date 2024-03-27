@@ -17,8 +17,6 @@ public interface StatDataMapper {
 
     StatData toStatData(StatDataCreateDto createDto);
 
-    StatDataDto toStatDataDto(ViewStats viewStats);
-
     List<StatDataDto> toListStatDataDto(List<ViewStats> viewStatsList);
 
 }

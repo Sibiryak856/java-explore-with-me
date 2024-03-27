@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import ru.practicum.ewm.server.stats.model.StatData;
 import ru.practicum.ewm.server.stats.model.ViewStats;
-import ru.practicum.ewm.server.stats.repository.StatRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
