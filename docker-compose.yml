@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   stats-server:
-    build: stats-server
+    build: stats/stats-server
     image: stats-server
     ports:
       - "9090:9090"
@@ -24,7 +24,7 @@ services:
 
   ewm-service:
     build: main-service
-    image: ewm_service
+    image: main_service
     ports:
       - "8080:8080"
     depends_on:
