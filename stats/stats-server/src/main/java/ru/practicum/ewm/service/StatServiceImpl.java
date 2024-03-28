@@ -46,8 +46,7 @@ public class StatServiceImpl implements StatService {
             if (uris == null) {
                 return mapper.toListStatDataDto(
                         statRepository.findAllByTimeBetween(start, end, pageable));
-            }
-            else {
+            } else {
                 return mapper.toListStatDataDto(
                         statRepository.findAllByTimeBetweenAndUriIn(start, end, uris, pageable));
             }
