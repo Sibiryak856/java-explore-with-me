@@ -14,7 +14,7 @@ public class EwmApp {
 
     public static void main(String[] args) {
         SpringApplication.run(EwmApp.class, args);
-        StatsClient client = new StatsClient("http://localhost:9090", new RestTemplateBuilder());
+        StatsClient client = new StatsClientImpl("http://localhost:9090", new RestTemplateBuilder());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         String created = now.format(formatter);
