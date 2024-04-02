@@ -7,7 +7,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -17,7 +16,6 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 
-@Service
 @Slf4j
 public class StatsClientImpl implements StatsClient {
 
@@ -34,6 +32,7 @@ public class StatsClientImpl implements StatsClient {
 
     }
 
+    @Override
     public List<ViewStatDto> getStats(String start,
                                       String end,
                                       List<String> uris,
@@ -66,6 +65,7 @@ public class StatsClientImpl implements StatsClient {
         return Collections.emptyList();
     }
 
+    @Override
     public void postStat(StatDataCreateDto createDto) {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(serverUrl)
