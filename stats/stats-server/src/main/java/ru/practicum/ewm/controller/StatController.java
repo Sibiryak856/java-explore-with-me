@@ -8,12 +8,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.StatDataCreateDto;
 import ru.practicum.ewm.ViewStatDto;
-import ru.practicum.ewm.StatDataResponseDto;
 import ru.practicum.ewm.service.StatService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static ru.practicum.ewm.model.StatData.DATE_FORMAT;
 
 @RestController
 @Slf4j
@@ -29,23 +30,22 @@ public class StatController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/hit")
-    public StatDataResponseDto save(@RequestBody @Valid StatDataCreateDto statData) {
+    public void save(@RequestBody @Valid StatDataCreateDto statData) {
         log.info("Request received: POST /hit: {}", statData);
-        StatDataResponseDto createdStatData = statService.save(statData);
-        log.info("Request POST /hit processed: {}", createdStatData);
-        return createdStatData;
+        statService.save(statData);
+        log.info("Request POST /hit processed");
     }
 
     @GetMapping("/stats")
     public List<ViewStatDto> getHits(@RequestParam("start")
-                                     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                     @DateTimeFormat(pattern = DATE_FORMAT)
                                      LocalDateTime start,
                                      @RequestParam("end")
-                                     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+                                     @DateTimeFormat(pattern = DATE_FORMAT)
                                      LocalDateTime end,
                                      @RequestParam(required = false) List<String> uris,
                                      @RequestParam(required = false, defaultValue = "false") Boolean unique) {
-        log.info("Request received: GET /stats");
+        log.info("Request received: GET /stats: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
         List<ViewStatDto> statDataList = statService.getHits(
                 start, end, uris, unique);
         log.info("Request received: GET /stats processed: {}", statDataList);

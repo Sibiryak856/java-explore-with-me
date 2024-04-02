@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.practicum.ewm.model.StatData.DATE_FORMAT;
 
 @JsonTest
 class StatDataCreateDtoTest {
@@ -21,12 +22,11 @@ class StatDataCreateDtoTest {
 
     @Test
     void testStatDataCreateDto() throws IOException {
-        LocalDateTime created = LocalDateTime.now();
         StatDataCreateDto dto = StatDataCreateDto.builder()
                 .appName("ewm-main-service")
                 .uri("/events/1")
                 .ip("192.163.0.1")
-                .created(created)
+                .created(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
                 .build();
 
         JsonContent<StatDataCreateDto> result = json.write(dto);
@@ -34,7 +34,6 @@ class StatDataCreateDtoTest {
         assertThat(result).extractingJsonPathStringValue("$.app").isEqualTo(dto.getAppName());
         assertThat(result).extractingJsonPathStringValue("$.uri").isEqualTo(dto.getUri());
         assertThat(result).extractingJsonPathStringValue("$.ip").isEqualTo(dto.getIp());
-        assertThat(result).extractingJsonPathStringValue("$.timestamp")
-                .isEqualTo(dto.getCreated().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        assertThat(result).extractingJsonPathStringValue("$.timestamp").isEqualTo(dto.getCreated());
     }
 }

@@ -4,11 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import ru.practicum.ewm.ViewStatDto;
 import ru.practicum.ewm.model.StatData;
-import ru.practicum.ewm.model.ViewStats;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,11 +23,9 @@ class StatRepositoryTest {
     private StatData statData3;
     private StatData statData4;
     private LocalDateTime now;
-    private Pageable pageable;
 
     @BeforeEach
     void setUp() {
-        pageable = PageRequest.of(5 / 10, 10, Sort.by(Sort.Direction.DESC, "hits"));
         now = LocalDateTime.now().withNano(0);
         statData1 = StatData.builder()
                 .appName("ewm-main-service")
@@ -63,11 +58,23 @@ class StatRepositoryTest {
     }
 
     @Test
-    void findAllByTimeBetweenTest() {
-        List<ViewStats> result = repository.findAllByTimeBetween(
+    void findAllByTimeBetweenAndUriInTest() {
+        List<ViewStatDto> result = repository.findAllByTimeBetween(
                 now.minusHours(1),
                 now.plusHours(1),
-                pageable);
+                List.of("/events/1"));
+
+        assertThat(result).isNotNull();
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).getHits()).isEqualTo(3);
+    }
+
+    @Test
+    void findAllByTimeBetweenAndUriIsNullTest() {
+        List<ViewStatDto> result = repository.findAllByTimeBetween(
+                now.minusHours(1),
+                now.plusHours(1),
+                null);
 
         assertThat(result).isNotNull();
         assertThat(result.size()).isEqualTo(2);
@@ -77,21 +84,21 @@ class StatRepositoryTest {
 
     @Test
     void findAllByTimeBetween_whenTimeInFuture_thenReturnEmptyList() {
-        List<ViewStats> result = repository.findAllByTimeBetween(
+        List<ViewStatDto> result = repository.findAllByTimeBetween(
                 now.minusHours(1),
                 now.minusMinutes(30),
-                pageable);
+                List.of("/events/1"));
 
         assertThat(result).isNotNull();
         assertThat(result).isEmpty();
     }
 
     @Test
-    void findAllByTimeBetweenAndUniqueHitTest() {
-        List<ViewStats> result = repository.findAllByTimeBetweenAndUniqueHit(
+    void findAllUniqueHitByTimeBetweenAndUrisIsNullTest() {
+        List<ViewStatDto> result = repository.findAllUniqueHitByTimeBetween(
                 now.minusHours(1),
                 now.plusHours(1),
-                pageable);
+                null);
 
         assertThat(result).isNotNull();
         assertThat(result.size()).isEqualTo(2);
@@ -100,30 +107,14 @@ class StatRepositoryTest {
     }
 
     @Test
-    void findAllByTimeBetweenAndUniqueHitAndUriInTest() {
-        List<ViewStats> result = repository.findAllByTimeBetweenAndUniqueHitAndUriIn(
+    void findAllUniqueHitByTimeBetweenTest() {
+        List<ViewStatDto> result = repository.findAllUniqueHitByTimeBetween(
                 now.minusHours(1),
                 now.plusHours(1),
-                List.of("/events/1"),
-                pageable);
+                List.of("/events/1"));
 
         assertThat(result).isNotNull();
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0).getHits()).isEqualTo(2);
     }
-
-    @Test
-    void findAllByTimeBetweenAndUriInTest() {
-        List<ViewStats> result = repository.findAllByTimeBetweenAndUriIn(
-                now.minusHours(1),
-                now.plusHours(1),
-                List.of("/events/1"),
-                pageable);
-
-        assertThat(result).isNotNull();
-        assertThat(result.size()).isEqualTo(1);
-        assertThat(result.get(0).getHits()).isEqualTo(3);
-    }
-
-
 }

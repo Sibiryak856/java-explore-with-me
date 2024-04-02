@@ -7,10 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Pageable;
 import ru.practicum.ewm.StatDataCreateDto;
 import ru.practicum.ewm.ViewStatDto;
-import ru.practicum.ewm.StatDataResponseDto;
 import ru.practicum.ewm.mapper.StatDataMapper;
 import ru.practicum.ewm.model.StatData;
 import ru.practicum.ewm.repository.StatRepository;
@@ -47,62 +45,38 @@ class StatServiceImplTest {
         when(repository.save(any(StatData.class)))
                 .thenReturn(statData);
 
-        StatDataResponseDto responseDto = service.save(createDto);
+        service.save(createDto);
 
-        assertThat(responseDto).isEqualTo(new StatDataResponseDto());
+        verify(repository).save(any(StatData.class));
     }
 
     @Test
-    void getHits_whenUrisIsNullAndIpNotUnique_thenFindAllByTimeBetween() {
+    void getHits_whenIpNotUnique_thenFindAllByTimeBetween() {
         when(repository.findAllByTimeBetween(
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
-                any(Pageable.class)))
+                anyList()))
                 .thenReturn(Collections.emptyList());
 
         List<ViewStatDto> result = service.getHits(LocalDateTime.now(),
                 LocalDateTime.now().plusMinutes(1),
-                null,
+                List.of("uri"),
                 FALSE);
 
         verify(repository).findAllByTimeBetween(
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
-                any(Pageable.class));
+                anyList());
 
         assertThat(result).isEqualTo(Collections.emptyList());
     }
 
     @Test
-    void getHits_whenIpNotUnique_thenFindAllByTimeBetweenAndUriIn() {
-        when(repository.findAllByTimeBetweenAndUriIn(
+    void getHits_whenIpUnique_thenFindAllUniqueHitByTimeBetween() {
+        when(repository.findAllUniqueHitByTimeBetween(
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
-                anyList(),
-                any(Pageable.class)))
-                .thenReturn(Collections.emptyList());
-
-        List<ViewStatDto> result = service.getHits(LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(1),
-                List.of("uri"),
-                FALSE);
-
-        verify(repository).findAllByTimeBetweenAndUriIn(
-                any(LocalDateTime.class),
-                any(LocalDateTime.class),
-                anyList(),
-                any(Pageable.class));
-
-        assertThat(result).isEqualTo(Collections.emptyList());
-    }
-
-    @Test
-    void getHits_whenIpUniqueAndUriIn_thenFindAllByTimeBetweenAndUniqueHitAndUriIn() {
-        when(repository.findAllByTimeBetweenAndUniqueHitAndUriIn(
-                any(LocalDateTime.class),
-                any(LocalDateTime.class),
-                anyList(),
-                any(Pageable.class)))
+                anyList()))
                 .thenReturn(Collections.emptyList());
 
         List<ViewStatDto> result = service.getHits(LocalDateTime.now(),
@@ -110,32 +84,10 @@ class StatServiceImplTest {
                 List.of("uri"),
                 TRUE);
 
-        verify(repository).findAllByTimeBetweenAndUniqueHitAndUriIn(
+        verify(repository).findAllUniqueHitByTimeBetween(
                 any(LocalDateTime.class),
                 any(LocalDateTime.class),
-                anyList(),
-                any(Pageable.class));
-
-        assertThat(result).isEqualTo(Collections.emptyList());
-    }
-
-    @Test
-    void getHits_whenIpUniqueAndUrisIsNull_thenFindAllByTimeBetweenAndUniqueHit() {
-        when(repository.findAllByTimeBetweenAndUniqueHit(
-                any(LocalDateTime.class),
-                any(LocalDateTime.class),
-                any(Pageable.class)))
-                .thenReturn(Collections.emptyList());
-
-        List<ViewStatDto> result = service.getHits(LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(1),
-                null,
-                TRUE);
-
-        verify(repository).findAllByTimeBetweenAndUniqueHit(
-                any(LocalDateTime.class),
-                any(LocalDateTime.class),
-                any(Pageable.class));
+                anyList());
 
         assertThat(result).isEqualTo(Collections.emptyList());
     }

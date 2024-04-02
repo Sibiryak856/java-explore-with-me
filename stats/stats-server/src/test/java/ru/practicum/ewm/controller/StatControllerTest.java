@@ -1,6 +1,7 @@
 package ru.practicum.ewm.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -8,19 +9,19 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.ewm.StatDataCreateDto;
-import ru.practicum.ewm.StatDataResponseDto;
 import ru.practicum.ewm.service.StatServiceImpl;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.practicum.ewm.model.StatData.DATE_FORMAT;
 
 @WebMvcTest(controllers = StatController.class)
 class StatControllerTest {
@@ -34,46 +35,35 @@ class StatControllerTest {
     @Autowired
     private MockMvc mvc;
 
+    private StatDataCreateDto dto;
+
+    @BeforeEach
+    void setUp() {
+        dto = StatDataCreateDto.builder()
+                .appName("app")
+                .uri("uri")
+                .ip("ip")
+                .created(LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_FORMAT)))
+                .build();
+    }
+
 
     @Test
     void save_whenDataIsValid_thenReturnIsCreatedAndResponseDto() throws Exception {
-        LocalDateTime now = LocalDateTime.now();
-        StatDataCreateDto dto = StatDataCreateDto.builder()
-                .appName("app")
-                .uri("uri")
-                .ip("ip")
-                .created(now)
-                .build();
-        StatDataResponseDto responseDto = StatDataResponseDto.builder()
-                .appName("app")
-                .uri("uri")
-                .ip("ip")
-                .created(now)
-                .build();
-        when(service.save(any(StatDataCreateDto.class)))
-                .thenReturn(responseDto);
 
-        String result = mvc.perform(post("/hit")
+        mvc.perform(post("/hit")
                         .content(String.valueOf(mapper.writeValueAsString(dto)))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+                .andExpect(status().isCreated());
 
-        assertThat(result).isEqualTo(mapper.writeValueAsString(responseDto));
+        verify(service).save(any(StatDataCreateDto.class));
     }
 
     @Test
     void save_whenDataIsNotValid_thenReturnIsBadRequest() throws Exception {
-        StatDataCreateDto dto = StatDataCreateDto.builder()
-                .appName(null)
-                .uri("uri")
-                .ip("ip")
-                .created(LocalDateTime.now())
-                .build();
+        dto.setAppName(null);
 
         mvc.perform(post("/hit")
                         .content(String.valueOf(mapper.writeValueAsString(dto)))
