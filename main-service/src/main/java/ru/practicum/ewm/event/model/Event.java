@@ -7,7 +7,6 @@ import ru.practicum.ewm.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter

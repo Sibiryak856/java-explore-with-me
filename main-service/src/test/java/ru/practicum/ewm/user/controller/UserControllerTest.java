@@ -1,7 +1,6 @@
 package ru.practicum.ewm.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

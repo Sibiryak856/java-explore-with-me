@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.dto.CategoryRequestDto;
 import ru.practicum.ewm.category.service.CategoryService;
-import ru.practicum.ewm.user.dto.UserCreateDto;
-import ru.practicum.ewm.user.dto.UserDto;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;

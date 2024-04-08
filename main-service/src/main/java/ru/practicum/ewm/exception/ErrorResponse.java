@@ -21,7 +21,6 @@ public class ErrorResponse {
     private String stackTraceToString(Throwable e) {
         StringWriter writer = new StringWriter();
         e.printStackTrace(new PrintWriter(writer));
-        String exceptionAsString = writer.toString();
-        return exceptionAsString;
+        return writer.toString();
     }
 }
