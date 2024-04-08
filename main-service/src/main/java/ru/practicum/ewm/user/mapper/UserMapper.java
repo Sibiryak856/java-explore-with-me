@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.user.dto.UserCreateDto;
 import ru.practicum.ewm.user.dto.UserDto;
+import ru.practicum.ewm.user.dto.UserShortDto;
 import ru.practicum.ewm.user.model.User;
 
 import java.util.List;
@@ -19,6 +20,8 @@ public interface UserMapper {
     User toUser(UserCreateDto userCreateDto);
 
     UserDto toDto(User user);
+
+    UserShortDto toShortDto(User user);
 
     List<UserDto> toDtoList(List<User> users);
 }

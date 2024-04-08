@@ -18,14 +18,14 @@ import java.util.Map;
 @Slf4j
 public class ErrorHandler {
 
-    /*@ExceptionHandler
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
         String message = e.getMessage();
         log.info(message);
         return new ErrorResponse(message);
     }
-
+/*
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotAccessException(final NotAccessException e) {

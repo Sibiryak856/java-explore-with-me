@@ -12,6 +12,8 @@ import java.util.List;
 @SpringBootApplication
 public class EwmApp {
 
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
     public static void main(String[] args) {
         SpringApplication.run(EwmApp.class, args);
         StatsClient client = new StatsClientImpl("http://localhost:9090", new RestTemplateBuilder());
