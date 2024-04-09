@@ -13,7 +13,7 @@ import java.util.List;
 public class EwmApp {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
     public static void main(String[] args) {
         SpringApplication.run(EwmApp.class, args);

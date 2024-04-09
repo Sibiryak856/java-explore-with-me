@@ -59,7 +59,7 @@ public interface EventMapper {
     default List<EventShortDto> toEventShortDtoList(List<Event> events, List<ViewStatDto> viewStatList) {
         if (viewStatList.isEmpty()) {
             return events.stream()
-                    .map(event -> toShortDto(event))
+                    .map(this::toShortDto)
                     .collect(Collectors.toList());
         } else {
             Map<String, Long> viewStatMap = new HashMap<>();

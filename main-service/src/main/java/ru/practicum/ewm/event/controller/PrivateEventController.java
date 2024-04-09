@@ -3,6 +3,7 @@ package ru.practicum.ewm.event.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +55,7 @@ public class PrivateEventController {
             @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
             @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
         log.info("Request received: GET /users/userId={}/events: from={}, size={}", userId, from, size);
-        PageRequest pageRequest = new MyPageRequest(from, size, null);
+        PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
         List<EventShortDto> shortDtoList = service.getAllByUserId(userId, pageRequest);
         log.info("Request GET /users/userId={}/events processed:{}", userId, shortDtoList);
         return shortDtoList;

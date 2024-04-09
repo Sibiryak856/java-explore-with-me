@@ -3,6 +3,7 @@ package ru.practicum.ewm.user.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +43,7 @@ public class UserController {
             @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
             @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
         log.info("Request received: GET /admin/users: ids={}, from={}, size={}", ids, from, size);
-        PageRequest pageRequest = new MyPageRequest(from, size, null);
+        PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
         List<UserDto> users = service.getAll(ids, pageRequest);
         log.info("Request GET /admin/users processed: {}", users);
         return users;

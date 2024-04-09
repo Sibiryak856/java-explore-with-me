@@ -51,8 +51,8 @@ public class RequestServiceImpl implements RequestService {
             throw new IllegalArgumentException("Can't add a request to unpublished event");
         }
         if (event.getParticipantLimit() != 0 &&
-                event.getParticipantLimit() ==
-                        requestRepository.countByEventIdAndStatusIs(eventId, RequestStatus.CONFIRMED)) {
+                event.getParticipantLimit().equals(
+                        requestRepository.countByEventIdAndStatusIs(eventId, RequestStatus.CONFIRMED))) {
             throw new IllegalArgumentException("Limit of participation requests reached");
         }
         Request request = Request.builder()

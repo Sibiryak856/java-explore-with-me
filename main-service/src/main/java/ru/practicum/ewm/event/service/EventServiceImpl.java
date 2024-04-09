@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.hibernate.type.LocalTimeType.FORMATTER;
+import static ru.practicum.ewm.EwmApp.FORMATTER;
 
 @Service
 public class EventServiceImpl implements EventService {

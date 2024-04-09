@@ -96,7 +96,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(final Throwable e) {
+    public ErrorResponse handleException(final Exception e) {
         String errorMsg = "Unexpected error occurred";
         log.error(errorMsg, e);
         return new ErrorResponse(e);
