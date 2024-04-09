@@ -4,8 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-import ru.practicum.ewm.category.dto.CategoryRequestDto;
 import ru.practicum.ewm.category.dto.CategoryDto;
+import ru.practicum.ewm.category.dto.CategoryRequestDto;
 import ru.practicum.ewm.category.model.Category;
 
 import java.util.List;

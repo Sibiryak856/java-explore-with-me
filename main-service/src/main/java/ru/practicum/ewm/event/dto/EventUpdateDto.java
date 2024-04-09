@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
-import ru.practicum.ewm.event.EventState;
 import ru.practicum.ewm.event.validation.EventDateIsAfterTwoHoursFromCurrentTime;
 
 import javax.validation.constraints.NotBlank;

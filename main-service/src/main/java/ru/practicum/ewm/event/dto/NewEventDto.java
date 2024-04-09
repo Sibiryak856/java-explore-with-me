@@ -9,7 +9,6 @@ import ru.practicum.ewm.event.validation.EventDateIsAfterTwoHoursFromCurrentTime
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import java.time.LocalDateTime;
 
 import static java.lang.Boolean.FALSE;
