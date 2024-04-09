@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.service.CategoryService;
+import ru.practicum.ewm.pagination.MyPageRequest;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -26,11 +27,11 @@ public class CategoryController {
 
     @GetMapping
     public List<CategoryDto> getAll(
-            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int offset,
-            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int limit) {
-        log.info("Request received: GET /categories: offset={}, limit={}", offset, limit);
-        Pageable pageable = PageRequest.of(offset / limit, limit);
-        List<CategoryDto> categories = service.getAll(pageable);
+            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
+            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
+        log.info("Request received: GET /categories: from={}, size={}", from, size);
+        PageRequest pageRequest = new MyPageRequest(from, size, null);
+        List<CategoryDto> categories = service.getAll(pageRequest);
         log.info("Request GET /categories processed: {}", categories);
         return categories;
     }

@@ -24,7 +24,7 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "USER_ID")
-    private User user;
+    private User initiator;
 
     @Column(name = "ANNOTATION")
     private String annotation;

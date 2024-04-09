@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.ewm.event.EventState;
 import ru.practicum.ewm.event.validation.EventDateIsAfterTwoHoursFromCurrentTime;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
 import java.time.LocalDateTime;
 
 import static java.lang.Boolean.FALSE;
@@ -18,18 +18,15 @@ import static java.lang.Boolean.TRUE;
 @Data
 @Builder
 @EventDateIsAfterTwoHoursFromCurrentTime
-public class NewEventDto {
+public class EventUpdateDto {
 
-    @NotBlank
     @Size(min = 20, message = "{validation.name.size.too_short}")
     @Size(max = 2000, message = "{validation.name.size.too_long}")
     private String annotation;
 
-    @NotNull
     @JsonProperty("category")
     private Long categoryId;
 
-    @NotBlank
     @Size(min = 20, message = "{validation.name.size.too_short}")
     @Size(max = 7000, message = "{validation.name.size.too_long}")
     private String description;
@@ -51,6 +48,8 @@ public class NewEventDto {
     private Boolean requestModeration = TRUE;
 
     @NotBlank
+    private String stateAction;
+
     @Size(min = 3, message = "{validation.name.size.too_short}")
     @Size(max = 120, message = "{validation.name.size.too_long}")
     private String title;

@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.pagination.MyPageRequest;
 import ru.practicum.ewm.user.dto.UserCreateDto;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserService;
@@ -39,11 +40,11 @@ public class UserController {
     @GetMapping
     public List<UserDto> getAll(
             @RequestParam(required = false) List<Long> ids,
-            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int offset,
-            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int limit) {
-        log.info("Request received: GET /admin/users: ids={}, offset={}, limit={}", ids, offset, limit);
-        Pageable pageable = PageRequest.of(offset / limit, limit);
-        List<UserDto> users = service.getAll(ids, pageable);
+            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
+            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
+        log.info("Request received: GET /admin/users: ids={}, from={}, size={}", ids, from, size);
+        PageRequest pageRequest = new MyPageRequest(from, size, null);
+        List<UserDto> users = service.getAll(ids, pageRequest);
         log.info("Request GET /admin/users processed: {}", users);
         return users;
     }

@@ -25,14 +25,13 @@ public class ErrorHandler {
         log.info(message);
         return new ErrorResponse(message);
     }
-/*
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleNotAccessException(final NotAccessException e) {
         String message = e.getMessage();
         log.info(message);
         return new ErrorResponse(message);
-    }*/
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -43,7 +42,15 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleValidationException(final ValidationException e) {
+        String message = e.getMessage();
+        log.info(message);
+        return new ErrorResponse(message);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleIllegalArgumentException(final IllegalArgumentException e) {
         String message = e.getMessage();
         log.info(message);

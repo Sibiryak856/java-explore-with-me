@@ -17,7 +17,7 @@ public class EventShortDto {
 
     private CategoryDto category;
 
-    //private Integer confirmedRequests;
+    private Integer confirmedRequests;
 
     @DateTimeFormat(pattern = DATE_FORMAT)
     private String eventDate;

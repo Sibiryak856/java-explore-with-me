@@ -24,7 +24,8 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public void save(StatDataCreateDto createDto) {
-        statRepository.save(mapper.toStatData(createDto));
+        statRepository.save(
+                mapper.toStatData(createDto));
     }
 
     @Override

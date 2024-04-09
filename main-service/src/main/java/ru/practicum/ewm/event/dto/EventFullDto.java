@@ -18,14 +18,12 @@ public class EventFullDto {
 
     private CategoryDto category;
 
-    //private Integer confirmedRequests;
+    private Integer confirmedRequests;
 
-    @DateTimeFormat(pattern = DATE_FORMAT)
     private String createdOn;
 
     private String description;
 
-    @DateTimeFormat(pattern = DATE_FORMAT)
     private String eventDate;
 
     private Long id;
@@ -38,7 +36,6 @@ public class EventFullDto {
 
     private Integer participantLimit;
 
-    @DateTimeFormat(pattern = DATE_FORMAT)
     private String publishedOn;
 
     private EventState state;
