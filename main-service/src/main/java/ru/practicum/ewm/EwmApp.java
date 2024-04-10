@@ -5,9 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @SpringBootApplication
 public class EwmApp {
@@ -15,9 +13,12 @@ public class EwmApp {
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
+    public static final StatsClient CLIENT = new StatsClientImpl(
+            "http://localhost:9090", new RestTemplateBuilder());
+
     public static void main(String[] args) {
         SpringApplication.run(EwmApp.class, args);
-        StatsClient client = new StatsClientImpl("http://localhost:9090", new RestTemplateBuilder());
+        /*StatsClient CLIENT = new StatsClientImpl("http://localhost:9090", new RestTemplateBuilder());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         String created = now.format(formatter);
@@ -47,16 +48,16 @@ public class EwmApp {
                 .created(created)
                 .build();
 
-        client.postStat(statData1);
-        client.postStat(statData2);
-        client.postStat(statData3);
-        client.postStat(statData4);
+        CLIENT.postStat(statData1);
+        CLIENT.postStat(statData2);
+        CLIENT.postStat(statData3);
+        CLIENT.postStat(statData4);
 
-        List<ViewStatDto> list = client.getStats(
+        List<ViewStatDto> list = CLIENT.getStats(
                 now.minusHours(1).format(formatter),
                 now.plusHours(1).format(formatter),
                 List.of("/events/1"),
                 Boolean.FALSE);
-        System.out.println(list);
+        System.out.println(list);*/
     }
 }

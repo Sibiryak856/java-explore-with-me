@@ -11,4 +11,6 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findAllByInitiatorId(long userId, PageRequest pageRequest);
+
+    List<Event> findAllByIdIn(List<Long> events);
 }

@@ -54,6 +54,6 @@ public class UserController {
     public void delete(@PathVariable Long userId) {
         log.info("Request received: DELETE /admin/users/userId={}", userId);
         service.delete(userId);
-        log.info("Request received: DELETE /admin/users/userId processed");
+        log.info("Request DELETE /admin/users/userId processed");
     }
 }

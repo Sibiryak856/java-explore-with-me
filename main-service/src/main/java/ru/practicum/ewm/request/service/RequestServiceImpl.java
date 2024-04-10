@@ -9,6 +9,7 @@ import ru.practicum.ewm.request.dto.RequestDto;
 import ru.practicum.ewm.request.mapper.RequestMapper;
 import ru.practicum.ewm.request.model.Request;
 import ru.practicum.ewm.request.repository.RequestRepository;
+import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -36,9 +37,8 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public RequestDto save(long userId, long eventId) {
-        if (!userRepository.existsById(userId)) {
-            new NotFoundException(String.format("User with id=%d was not found", userId));
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("User with id=%d was not found", userId)));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
         if (requestRepository.findByRequesterIdAndEventId(userId, event).isPresent()) {
@@ -56,8 +56,8 @@ public class RequestServiceImpl implements RequestService {
             throw new IllegalArgumentException("Limit of participation requests reached");
         }
         Request request = Request.builder()
-                .eventId(eventId)
-                .requesterId(userId)
+                .event(event)
+                .requester(user)
                 .status(RequestStatus.PENDING)
                 .created(LocalDateTime.now().withNano(0))
                 .build();

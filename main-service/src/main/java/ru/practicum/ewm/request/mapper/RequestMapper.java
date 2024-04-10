@@ -1,6 +1,7 @@
 package ru.practicum.ewm.request.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.request.RequestStatus;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
@@ -16,6 +17,8 @@ import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 @Mapper(componentModel = SPRING)
 public interface RequestMapper {
 
+    @Mapping(source = "event.id", target = "eventId")
+    @Mapping(source = "requester.id", target = "requesterId")
     RequestDto toDto(Request request);
 
     List<RequestDto> toDtoList(List<Request> requests);

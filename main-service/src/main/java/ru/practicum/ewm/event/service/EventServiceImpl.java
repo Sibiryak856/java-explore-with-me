@@ -1,11 +1,8 @@
 package ru.practicum.ewm.event.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.StatsClient;
-import ru.practicum.ewm.StatsClientImpl;
 import ru.practicum.ewm.ViewStatDto;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
@@ -37,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.ewm.EwmApp.CLIENT;
 import static ru.practicum.ewm.EwmApp.FORMATTER;
 
 @Service
@@ -50,7 +48,6 @@ public class EventServiceImpl implements EventService {
     private CategoryRepository categoryRepository;
     private RequestRepository requestRepository;
     private RequestMapper requestMapper;
-    private StatsClient client = new StatsClientImpl("http://localhost:9090", new RestTemplateBuilder());
 
     @Autowired
     public EventServiceImpl(EventRepository eventRepository,
@@ -97,7 +94,7 @@ public class EventServiceImpl implements EventService {
         List<String> eventsUri = events.stream()
                 .map(event -> String.format("/events/%d", event.getId()))
                 .collect(Collectors.toList());
-        List<ViewStatDto> viewStatList = client.getStats(
+        List<ViewStatDto> viewStatList = CLIENT.getStats(
                 LocalDateTime.MIN.format(FORMATTER),
                 LocalDateTime.MAX.format(FORMATTER),
                 eventsUri,
@@ -112,7 +109,7 @@ public class EventServiceImpl implements EventService {
         }
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
-        List<ViewStatDto> viewStatDtos = client.getStats(
+        List<ViewStatDto> viewStatDtos = CLIENT.getStats(
                 event.getCreatedOn().format(FORMATTER),
                 LocalDateTime.MAX.format(FORMATTER),
                 List.of(String.format("/events/%d", event.getId())),

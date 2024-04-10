@@ -13,6 +13,7 @@ import ru.practicum.ewm.event.dto.EventUpdateDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.Location;
+import ru.practicum.ewm.user.mapper.UserMapper;
 import ru.practicum.ewm.user.model.User;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,8 @@ import static ru.practicum.ewm.EwmApp.DATE_FORMAT;
 
 @Component
 @Mapper(componentModel = SPRING,
-        imports = {LocalDateTime.class})
+        imports = {LocalDateTime.class},
+        uses = UserMapper.class)
 public interface EventMapper {
 
     @Mapping(target = "id", ignore = true)
