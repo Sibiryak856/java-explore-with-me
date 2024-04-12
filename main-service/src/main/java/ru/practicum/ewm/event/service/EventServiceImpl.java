@@ -100,7 +100,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto getByUserAndEventId(long userId, long eventId) {
         if (!userRepository.existsById(userId)) {
-            new NotFoundException(String.format("User with id=%d was not found", userId));
+            throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
@@ -113,7 +113,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto update(long userId, long eventId, UpdateEventUserRequest updateEventDto) {
         if (!userRepository.existsById(userId)) {
-            new NotFoundException(String.format("User with id=%d was not found", userId));
+            throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
@@ -211,10 +211,10 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<RequestDto> getRequestByEventId(long userId, long eventId) {
         if (!userRepository.existsById(userId)) {
-            new NotFoundException(String.format("User with id=%d was not found", userId));
+            throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
         if (!eventRepository.existsById(eventId)) {
-            new NotFoundException(String.format("Event with id=%d was not found", eventId));
+            throw new NotFoundException(String.format("Event with id=%d was not found", eventId));
         }
         return requestMapper.toDtoList(requestRepository.findAllByEventId(eventId));
     }
@@ -225,7 +225,7 @@ public class EventServiceImpl implements EventService {
             long eventId,
             EventRequestStatusUpdateRequest request) {
         if (!userRepository.existsById(userId)) {
-            new NotFoundException(String.format("User with id=%d was not found", userId));
+            throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));

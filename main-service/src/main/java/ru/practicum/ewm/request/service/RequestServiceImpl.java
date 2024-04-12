@@ -74,7 +74,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public RequestDto cancelRequest(long userId, long requestId) {
         if (!userRepository.existsById(userId)) {
-            new NotFoundException(String.format("User with id=%d was not found", userId));
+            throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(String.format("Request with id=%d was not found", requestId)));
@@ -92,7 +92,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<RequestDto> getAllById(long userId) {
         if (!userRepository.existsById(userId)) {
-            new NotFoundException(String.format("User with id=%d was not found", userId));
+            throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
         return requestMapper.toDtoList(requestRepository.findAllByRequesterId(userId));
     }

@@ -64,7 +64,7 @@ public interface EventMapper {
     default Map<Long, EventShortDto> toEventShortDtosMap(List<Event> events, Map<Long, Long> viewStatMap) {
         return events.stream()
                 .map(event -> toShortDto(event, viewStatMap.get(event.getId()), null))
-                .collect(Collectors.toMap(shortDto -> shortDto.getId(), shortDto -> shortDto));
+                .collect(Collectors.toMap(EventShortDto::getId, shortDto -> shortDto));
     }
 
 

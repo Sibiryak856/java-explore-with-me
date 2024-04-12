@@ -52,7 +52,7 @@ public class EventAdminController {
         List<EventState> statesList;
         if (states!= null) {
             statesList = states.stream()
-                    .map(s -> EventState.from(s))
+                    .map(EventState::from)
                     .collect(Collectors.toList());
         } else {
             statesList = null;

@@ -55,7 +55,7 @@ public class EventPublicController {
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
                 sort, from, size);
         Sort sort1 = Sort.unsorted();
-        if (SortQuery.from(sort).equals(EVENT_DATE)) {
+        if (sort != null && sort.equals(EVENT_DATE)) {
             sort1 = Sort.by(Sort.Direction.ASC, "eventDate");
         }
         PageRequest pageRequest = new MyPageRequest(from, size, sort1);
