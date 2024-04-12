@@ -4,15 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.validation.BindingResult;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.EventShortDto;
-import ru.practicum.ewm.event.dto.EventUpdateDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
+import ru.practicum.ewm.event.dto.UpdateEventUserRequest;
 import ru.practicum.ewm.event.service.EventService;
-import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.pagination.MyPageRequest;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
@@ -27,25 +26,26 @@ import java.util.List;
 @Validated
 @Slf4j
 @RequestMapping("/users/{userId}/events")
-public class PrivateEventController {
+public class EventPrivateController {
 
     private final EventService service;
 
     @Autowired
-    public PrivateEventController(EventService service) {
+    public EventPrivateController(EventService service) {
         this.service = service;
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public EventFullDto save(@RequestHeader long userId,
-                             @RequestBody @Validated NewEventDto eventDto,
-                             BindingResult errors) {
-        if (errors.hasErrors()) {
+                             @RequestBody @Validated NewEventDto eventDto
+                             /*BindingResult errors*/) {
+        /*if (errors.hasErrors()) {
             throw new ValidationException(errors);
-        }
+        }*/
         log.info("Request received POST /users/userId={}/events: event {}", userId, eventDto);
         EventFullDto savedEvent = service.save(userId, eventDto);
-        log.info("Request POST /users/userId={}/events processed: event:{} is created", userId, savedEvent);
+        log.info("Request POST /users/userId={}/events processed: event={} is created", userId, savedEvent);
         return savedEvent;
     }
 
@@ -62,11 +62,11 @@ public class PrivateEventController {
     }
 
     @GetMapping("/{eventId}")
-    public EventFullDto getAllByUser(
+    public EventFullDto getByUserAndEventId(
             @PathVariable long userId,
             @PathVariable long eventId) {
         log.info("Request received: GET /users/userId={}/events/eventId={}", userId, eventId);
-        EventFullDto fullDto = service.getByEventId(userId, eventId);
+        EventFullDto fullDto = service.getByUserAndEventId(userId, eventId);
         log.info("Request GET /users/userId={}/events/eventId={} processed:{}", userId, eventId, fullDto);
         return fullDto;
     }
@@ -74,14 +74,15 @@ public class PrivateEventController {
     @PatchMapping("/{eventId}")
     public EventFullDto update(@RequestHeader long userId,
                                @RequestParam long eventId,
-                               @RequestBody @Valid EventUpdateDto updateEventDto,
-                               BindingResult errors) {
-        if (errors.hasErrors()) {
+                               @RequestBody @Valid UpdateEventUserRequest updateEventDto/*,
+                               BindingResult errors*/) {
+        /*if (errors.hasErrors()) {
             throw new ValidationException(errors);
-        }
-        log.info("Request received PATCH /users/userId={}/events/eventId={}: event {}", userId, eventId, updateEventDto);
+        }*/
+        log.info("Request received PATCH /users/userId={}/events/eventId={}: event {}",
+                userId, eventId, updateEventDto);
         EventFullDto updatedEvent = service.update(userId, eventId, updateEventDto);
-        log.info("Request PATCH /users/userId={}/events/eventId={} processed: event:{} is created",
+        log.info("Request PATCH /users/userId={}/events/eventId={} processed: event={} is updated",
                 userId, eventId, updatedEvent);
         return updatedEvent;
     }

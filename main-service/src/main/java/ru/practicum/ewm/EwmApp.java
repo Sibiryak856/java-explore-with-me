@@ -14,6 +14,7 @@ public class EwmApp {
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
     public static final StatsClient CLIENT = new StatsClientImpl(
+            //@Value("${stats-server.url}")
             "http://localhost:9090", new RestTemplateBuilder());
 
     public static void main(String[] args) {

@@ -1,6 +1,7 @@
 package ru.practicum.ewm;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -21,7 +22,7 @@ public class StatsClientImpl implements StatsClient {
 
     private final String serverUrl;
 
-    public StatsClientImpl(String serverUrl, RestTemplateBuilder builder) {
+    public StatsClientImpl(@Value("http://localhost:9090") String serverUrl, RestTemplateBuilder builder) {
         this.serverUrl = serverUrl;
         this.rest = builder
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))

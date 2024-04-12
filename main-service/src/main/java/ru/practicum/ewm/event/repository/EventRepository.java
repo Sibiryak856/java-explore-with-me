@@ -6,11 +6,14 @@ import org.springframework.stereotype.Repository;
 import ru.practicum.ewm.event.model.Event;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findAllByInitiatorId(long userId, PageRequest pageRequest);
 
-    List<Event> findAllByIdIn(List<Long> events);
+    List<Event> findAllByIdIn(Set<Long> events);
+
+    List<Event> findAllByCategoryId(Long id);
 }

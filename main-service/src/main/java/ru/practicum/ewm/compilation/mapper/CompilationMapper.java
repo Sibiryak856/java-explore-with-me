@@ -8,13 +8,15 @@ import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
 import ru.practicum.ewm.compilation.model.Compilation;
 import ru.practicum.ewm.event.dto.EventShortDto;
+import ru.practicum.ewm.event.mapper.EventMapper;
 
 import java.util.List;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Component
-@Mapper(componentModel = SPRING)
+@Mapper(componentModel = SPRING,
+uses = EventMapper.class)
 public interface CompilationMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -24,4 +26,5 @@ public interface CompilationMapper {
 
     @Mapping(target = "id", ignore = true)
     Compilation update(NewCompilationDto dto, @MappingTarget Compilation compilation);
+
 }

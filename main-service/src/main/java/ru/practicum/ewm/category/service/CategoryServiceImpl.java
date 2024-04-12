@@ -8,6 +8,7 @@ import ru.practicum.ewm.category.dto.CategoryRequestDto;
 import ru.practicum.ewm.category.mapper.CategoryMapper;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
+import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotFoundException;
 
 import java.util.List;
@@ -15,43 +16,53 @@ import java.util.List;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-    public CategoryRepository repository;
+    public CategoryRepository categoryRepository;
+    private EventRepository eventRepository;
 
     private CategoryMapper mapper;
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository repository, CategoryMapper mapper) {
-        this.repository = repository;
+    public CategoryServiceImpl(CategoryRepository repository, EventRepository eventRepository, CategoryMapper mapper) {
+        this.categoryRepository = repository;
+        this.eventRepository = eventRepository;
         this.mapper = mapper;
     }
 
     @Override
     public CategoryDto save(CategoryRequestDto dto) {
-        return mapper.toDto(repository.save(mapper.toCategory(dto)));
+        return mapper.toDto(
+                categoryRepository.save(
+                        mapper.toCategory(dto)));
     }
 
     @Override
     public CategoryDto update(Long id, CategoryRequestDto dto) {
-        Category updatingCategory = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Category not found"));
+        Category updatingCategory = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Category with id=%d was not found", id)));
         updatingCategory.setName(dto.getName());
-        return mapper.toDto(repository.save(updatingCategory));
+        return mapper.toDto(categoryRepository.save(updatingCategory));
     }
 
     @Override
     public void delete(Long id) {
-        // если нет связанных событий
-        repository.deleteById(id);
+        if (!categoryRepository.existsById(id)) {
+            throw new NotFoundException(String.format("Category with id=%d was not found", id));
+        }
+        if (!eventRepository.findAllByCategoryId(id)
+                .isEmpty()) {
+            throw new IllegalArgumentException("The category is not empty");
+        }  // try to e from DB
+        categoryRepository.deleteById(id);
     }
 
     @Override
     public List<CategoryDto> getAll(Pageable pageable) {
-        return mapper.toDtoList(repository.findAll(pageable));
+        return mapper.toDtoList(categoryRepository.findAll(pageable));
     }
 
     @Override
     public CategoryDto getById(long catId) {
-        Category category = repository.findById(catId)
+        Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException(String.format("Category with id=%d was not found", catId)));
         return mapper.toDto(category);
     }

@@ -22,7 +22,7 @@ public class EventDateIsAfterTwoHoursFromCurrentTimeValidator implements
                     "Illegal method signature, expected parameter of type LocalDateTime.");
         }
 
-        return (eventDto.getEventDate().isBefore(
+        return (eventDto.getEventDate().isAfter(
                 LocalDateTime.now().plusHours(2)));
     }
 }

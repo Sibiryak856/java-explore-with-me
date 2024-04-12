@@ -16,7 +16,7 @@ import javax.validation.Valid;
 @Slf4j
 @Validated
 @RequestMapping("/admin/compilations")
-public class AdminCompilationController {
+public class CompilationAdminController {
 
     @Autowired
     private CompilationService service;

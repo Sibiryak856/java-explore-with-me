@@ -14,12 +14,12 @@ import java.util.List;
 @Validated
 @Slf4j
 @RequestMapping("/users/{userId}/requests")
-public class RequestController {
+public class RequestPrivateController {
 
     private final RequestService service;
 
     @Autowired
-    public RequestController(RequestService service) {
+    public RequestPrivateController(RequestService service) {
         this.service = service;
     }
 

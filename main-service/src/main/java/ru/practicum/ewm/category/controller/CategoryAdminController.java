@@ -14,12 +14,12 @@ import javax.validation.Valid;
 @RestController
 @Slf4j
 @RequestMapping("/admin/categories")
-public class AdminCategoryController {
+public class CategoryAdminController {
 
     private final CategoryService service;
 
     @Autowired
-    public AdminCategoryController(CategoryService service) {
+    public CategoryAdminController(CategoryService service) {
         this.service = service;
     }
 
@@ -48,7 +48,7 @@ public class AdminCategoryController {
     public void delete(@RequestHeader long catId) {
         log.info("Request received: DELETE /admin/categories/id={}", catId);
         service.delete(catId);
-        log.info("Request DELETE /admin/categories/id={} processed");
+        log.info("Request DELETE /admin/categories/id={} processed", catId);
     }
 
 }

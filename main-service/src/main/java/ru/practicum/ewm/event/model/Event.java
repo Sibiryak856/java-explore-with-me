@@ -2,7 +2,7 @@ package ru.practicum.ewm.event.model;
 
 import lombok.*;
 import ru.practicum.ewm.category.model.Category;
-import ru.practicum.ewm.event.EventState;
+import ru.practicum.ewm.compilation.model.Compilation;
 import ru.practicum.ewm.user.model.User;
 
 import javax.persistence.*;
@@ -32,6 +32,9 @@ public class Event {
     @ManyToOne
     @JoinColumn(name = "CATEGORY_ID")
     private Category category;
+
+    @Column(name = "CONFIRMED_REQUESTS")
+    private Integer confirmedRequests;
 
     @Column(name = "DESCRIPTION")
     private String description;
@@ -65,4 +68,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
 
+    @ManyToOne
+    @JoinColumn(name = "COMPILATION_ID")
+    private Compilation compilation;
 }

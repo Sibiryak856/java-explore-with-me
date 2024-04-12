@@ -17,7 +17,7 @@ import static java.lang.Boolean.TRUE;
 @Data
 @Builder
 @EventDateIsAfterTwoHoursFromCurrentTime
-public class EventUpdateDto {
+public class UpdateEventBaseRequest {
 
     @Size(min = 20, message = "{validation.name.size.too_short}")
     @Size(max = 2000, message = "{validation.name.size.too_long}")

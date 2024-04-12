@@ -1,9 +1,10 @@
 package ru.practicum.ewm.compilation.model;
 
 import lombok.*;
+import ru.practicum.ewm.event.model.Event;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -19,8 +20,9 @@ public class Compilation {
     @Column(name = "COMPILATION_ID")
     private Long id;
 
-    @JoinColumn(name = "COMPILATION_ID")
-    private List<Long> events;
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH},
+    mappedBy = "compilation")
+    private Set<Event> events;
 
     @Column(name = "PINNED")
     private Boolean pinned;

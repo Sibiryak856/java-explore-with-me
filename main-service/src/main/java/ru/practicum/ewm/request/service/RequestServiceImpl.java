@@ -1,7 +1,7 @@
 package ru.practicum.ewm.request.service;
 
-import ru.practicum.ewm.event.EventState;
 import ru.practicum.ewm.event.model.Event;
+import ru.practicum.ewm.event.model.EventState;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.RequestStatus;
@@ -45,10 +45,10 @@ public class RequestServiceImpl implements RequestService {
             throw new IllegalArgumentException("Request already exists");
         }
         if (event.getInitiator().getId().equals(userId)) {
-            throw new IllegalArgumentException("Can't add a request to your own event");
+            throw new IllegalArgumentException("Can't add a request to participate in your event");
         }
         if (!event.getState().equals(EventState.PUBLISHED)) {
-            throw new IllegalArgumentException("Can't add a request to unpublished event");
+            throw new IllegalArgumentException("Event not published yet");
         }
         if (event.getParticipantLimit() != 0 &&
                 event.getParticipantLimit().equals(
@@ -63,9 +63,12 @@ public class RequestServiceImpl implements RequestService {
                 .build();
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(RequestStatus.CONFIRMED);
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+            eventRepository.save(event);
         }
 
-        return requestMapper.toDto(requestRepository.save(request));
+        return requestMapper.toDto(
+                requestRepository.save(request));
     }
 
     @Override
@@ -76,7 +79,14 @@ public class RequestServiceImpl implements RequestService {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(String.format("Request with id=%d was not found", requestId)));
         request.setStatus(RequestStatus.CANCELLED);
-        return requestMapper.toDto(requestRepository.save(request));
+        Event event = request.getEvent();
+        int confirmedRequest = event.getConfirmedRequests();
+        if (confirmedRequest > 0) {
+            event.setConfirmedRequests(confirmedRequest - 1);
+            eventRepository.save(event);
+        }
+        return requestMapper.toDto(
+                requestRepository.save(request));
     }
 
     @Override

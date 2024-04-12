@@ -3,7 +3,6 @@ package ru.practicum.ewm.compilation.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.ewm.ViewStatDto;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
 import ru.practicum.ewm.compilation.mapper.CompilationMapper;
@@ -13,14 +12,11 @@ import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.event.service.EventServiceImpl;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.request.repository.RequestRepository;
 
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static ru.practicum.ewm.EwmApp.CLIENT;
-import static ru.practicum.ewm.EwmApp.FORMATTER;
 
 @Service
 public class CompilationServiceImpl implements CompilationService {
@@ -31,36 +27,31 @@ public class CompilationServiceImpl implements CompilationService {
 
     private EventRepository eventRepository;
 
+    private RequestRepository requestRepository;
     private EventMapper eventMapper;
 
     @Autowired
-    public CompilationServiceImpl(CompilationRepository compilationRepository, CompilationMapper compilationMapper, EventRepository eventRepository, EventMapper eventMapper) {
+    public CompilationServiceImpl(CompilationRepository compilationRepository, CompilationMapper compilationMapper, EventRepository eventRepository, RequestRepository requestRepository, EventMapper eventMapper) {
         this.compilationRepository = compilationRepository;
         this.compilationMapper = compilationMapper;
         this.eventRepository = eventRepository;
+        this.requestRepository = requestRepository;
         this.eventMapper = eventMapper;
     }
 
     @Override
-    public CompilationDto save(NewCompilationDto dto) {
-        List<Event> events = eventRepository.findAllByIdIn(dto.getEvents());
-        if (events.size() < dto.getEvents().size()) {
+    public CompilationDto save(NewCompilationDto newCompilationDto) {
+        List<Event> events = eventRepository.findAllByIdIn(newCompilationDto.getEvents());
+        if (events.size() < newCompilationDto.getEvents().size()) {
             throw new NotFoundException("Not all events is present");
         }
         Compilation compilation = compilationRepository.save(
-                compilationMapper.toCompilation(dto));
-        List<ViewStatDto> viewStatList = new ArrayList<>();
-        if (!events.isEmpty()) {
-            List<String> eventsUri = events.stream()
-                    .map(event -> String.format("/events/%d", event.getId()))
-                    .collect(Collectors.toList());
-            viewStatList = CLIENT.getStats(
-                    LocalDateTime.MIN.format(FORMATTER),
-                    LocalDateTime.MAX.format(FORMATTER),
-                    eventsUri,
-                    Boolean.FALSE);
-        }
-        return compilationMapper.toDto(compilation, eventMapper.toEventShortDtoList(events, viewStatList));
+                compilationMapper.toCompilation(newCompilationDto));
+
+        Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
+
+        return compilationMapper.toDto(compilation,
+                eventMapper.toEventShortDtos(events, viewStatMap));
     }
 
     @Override
@@ -83,53 +74,32 @@ public class CompilationServiceImpl implements CompilationService {
         }
         Compilation updated = compilationRepository.save(
                 compilationMapper.update(dto, compilation));
-        List<ViewStatDto> viewStatList = new ArrayList<>();
-        if (!events.isEmpty()) {
-            List<String> eventsUri = events.stream()
-                    .map(event -> String.format("/events/%d", event.getId()))
-                    .collect(Collectors.toList());
-            viewStatList = CLIENT.getStats(
-                    LocalDateTime.MIN.format(FORMATTER),
-                    LocalDateTime.MAX.format(FORMATTER),
-                    eventsUri,
-                    Boolean.FALSE);
-        }
-        return compilationMapper.toDto(updated, eventMapper.toEventShortDtoList(events, viewStatList));
+
+        Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
+
+        return compilationMapper.toDto(updated,
+                eventMapper.toEventShortDtos(events, viewStatMap));
     }
 
     @Override
     public List<CompilationDto> getAll(Boolean pinned, PageRequest pageRequest) {
         List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageRequest);
-        Set<Long> eventIds = new HashSet<>();
-        compilations.forEach(
-                compilation -> eventIds.addAll(compilation.getEvents())
-        );
+        Set<Event> events = new HashSet<>();
+        compilations.forEach(compilation -> events.addAll(compilation.getEvents()));
 
-        List<Event> events = eventRepository.findAllByIdIn(new ArrayList<>(eventIds));
-        List<ViewStatDto> viewStatList = new ArrayList<>();
-        if (!events.isEmpty()) {
-            List<String> eventsUri = eventIds.stream()
-                    .map(id -> String.format("/events/%d", id))
-                    .collect(Collectors.toList());
-            viewStatList = CLIENT.getStats(
-                    LocalDateTime.MIN.format(FORMATTER),
-                    LocalDateTime.MAX.format(FORMATTER),
-                    eventsUri,
-                    Boolean.FALSE);
-        }
-        List<EventShortDto> eventShortDtoList = eventMapper.toEventShortDtoList(events, viewStatList);
-        Map<Long, EventShortDto> eventMap = new HashMap<>();
-        eventShortDtoList.forEach(dto -> eventMap.put(dto.getId(), dto));
-        //Map<Compilation, List<EventShortDto>> map = new HashMap<>();
-        List<CompilationDto> dtos = new ArrayList<>();
-        for (Compilation compilation : compilations) {
+        Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(List.copyOf(events));
+
+        Map<Long, EventShortDto> eventShortDtosMap = eventMapper.toEventShortDtosMap(
+                List.copyOf(events), viewStatMap);
+
+        List<CompilationDto> compilationDtos = new ArrayList<>();
+        compilations.forEach(compilation -> {
             List<EventShortDto> list = new ArrayList<>();
-            compilation.getEvents().forEach(id ->
-                    list.add(eventMap.get(id)));
-            //map.put(compilation, list);
-            dtos.add(compilationMapper.toDto(compilation, list));
-        }
-        return dtos;
+            compilation.getEvents().forEach(event ->
+                    list.add(eventShortDtosMap.get(event.getId())));
+            compilationDtos.add(compilationMapper.toDto(compilation, list));
+        });
+        return compilationDtos;
     }
 
     @Override
@@ -137,18 +107,11 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Compilation with id=%d was not found", compId)));
-        List<Event> events = eventRepository.findAllByIdIn(compilation.getEvents());
-        List<ViewStatDto> viewStatList = new ArrayList<>();
-        if (!events.isEmpty()) {
-            List<String> eventsUri = events.stream()
-                    .map(event -> String.format("/events/%d", event.getId()))
-                    .collect(Collectors.toList());
-            viewStatList = CLIENT.getStats(
-                    LocalDateTime.MIN.format(FORMATTER),
-                    LocalDateTime.MAX.format(FORMATTER),
-                    eventsUri,
-                    Boolean.FALSE);
-        }
-        return compilationMapper.toDto(compilation, eventMapper.toEventShortDtoList(events, viewStatList));
+        List<Event> events = List.copyOf(compilation.getEvents());
+
+        Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(List.copyOf(events));
+
+        return compilationMapper.toDto(compilation,
+                eventMapper.toEventShortDtos(events, viewStatMap));
     }
 }

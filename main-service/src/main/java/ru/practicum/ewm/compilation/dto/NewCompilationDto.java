@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -17,7 +17,7 @@ import java.util.List;
 public class NewCompilationDto {
 
     @Builder.Default
-    private List<Long> events = new ArrayList<>();
+    private Set<Long> events = new HashSet<>();
 
     @Builder.Default
     private Boolean pinned = Boolean.FALSE;

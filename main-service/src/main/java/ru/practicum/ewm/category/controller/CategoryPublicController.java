@@ -16,12 +16,12 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/categories")
-public class CategoryController {
+public class CategoryPublicController {
 
     private final CategoryService service;
 
     @Autowired
-    public CategoryController(CategoryService service) {
+    public CategoryPublicController(CategoryService service) {
         this.service = service;
     }
 
