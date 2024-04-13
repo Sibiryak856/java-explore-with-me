@@ -58,7 +58,8 @@ public class EventAdminController {
             statesList = null;
         }
         PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
-        List<EventFullDto> fullDtos = service.getAllByAdmin(users, statesList, categories, rangeStart, rangeEnd, pageRequest);
+        List<EventFullDto> fullDtos =
+                service.getAllByAdmin(users, statesList, categories, rangeStart, rangeEnd, pageRequest);
         log.info("Request GET /admin/events processed:{}", fullDtos);
         return fullDtos;
     }

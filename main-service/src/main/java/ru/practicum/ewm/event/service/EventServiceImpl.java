@@ -1,17 +1,20 @@
 package ru.practicum.ewm.event.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.ViewStatDto;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
+import ru.practicum.ewm.event.controller.SortQuery;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.mapper.LocationMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.EventState;
 import ru.practicum.ewm.event.model.Location;
+import ru.practicum.ewm.event.model.QEvent;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.event.repository.LocationRepository;
 import ru.practicum.ewm.exception.NotFoundException;
@@ -27,9 +30,7 @@ import ru.practicum.ewm.user.repository.UserRepository;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -85,7 +86,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getAllByUserId(long userId, PageRequest pageRequest) {
         if (!userRepository.existsById(userId)) {
-            new NotFoundException(String.format("User with id=%d was not found", userId));
+            throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
         List<Event> events = eventRepository.findAllByInitiatorId(userId, pageRequest);
         if (events.isEmpty()) {
@@ -94,7 +95,7 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> viewStatMap = getEventViews(events);
 
-        return eventMapper.toEventShortDtos(events, viewStatMap);
+        return eventMapper.toEventShortDtoListWithSortByViews(events, viewStatMap);
     }
 
     @Override
@@ -142,8 +143,44 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> getAllByAdmin(List<Long> users, List<EventState> statesList, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, PageRequest pageRequest) {
-        return null;
+    public List<EventFullDto> getAllByAdmin(List<Long> users,
+                                            List<EventState> statesList,
+                                            List<Long> categories,
+                                            LocalDateTime rangeStart,
+                                            LocalDateTime rangeEnd,
+                                            PageRequest pageRequest) {
+        QEvent event = QEvent.event;
+
+        List<BooleanExpression> conditions = new ArrayList<>();
+        if (users != null && !users.isEmpty()) {
+            conditions.add(event.initiator.id.in(users));
+        }
+        if (statesList != null && !statesList.isEmpty()) {
+            conditions.add(event.state.in(statesList));
+        }
+        if (categories != null && !categories.isEmpty()) {
+            event.category.id.in(categories);
+        }
+        if (rangeStart != null && rangeEnd != null) {
+            if (rangeStart.isAfter(rangeEnd)) {
+                conditions.add(event.eventDate.between(rangeStart, rangeEnd));
+            }
+        }
+
+        List<Event> events;
+
+        if (conditions.isEmpty()) {
+            events = eventRepository.findAll(pageRequest).getContent();
+        } else {
+            BooleanExpression exp = conditions.stream()
+                    .reduce(BooleanExpression :: and)
+                    .get();
+            events = eventRepository.findAll(exp, pageRequest).getContent();
+        }
+
+        Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
+
+        return eventMapper.toEventFullDtoList(events, viewStatMap);
     }
 
     @Override
@@ -196,17 +233,54 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getAll(String text, //ignoreCase
-                                      List<Long> categories,
-                                      Boolean paid,
-                                      LocalDateTime rangeStart,
-                                      LocalDateTime rangeEnd,
-                                      Boolean onlyAvailable,
-                                      PageRequest pageRequest) {
-        return null;
+    public List<EventShortDto> getAllPublic(String text,
+                                            List<Long> categories,
+                                            Boolean paid,
+                                            LocalDateTime rangeStart,
+                                            LocalDateTime rangeEnd,
+                                            Boolean onlyAvailable,
+                                            String sort,
+                                            PageRequest pageRequest) {
+        QEvent event = QEvent.event;
+
+        List<BooleanExpression> conditions = new ArrayList<>();
+        conditions.addAll(List.of(
+                event.state.eq(PUBLISHED),
+                onlyAvailable ?
+                        event.confirmedRequests.lt(event.participantLimit) :
+                        event.confirmedRequests.goe(event.participantLimit))
+        );
+
+        if (text != null && text.length() > 1) {
+            event.annotation.containsIgnoreCase(text)
+                    .or(event.description.containsIgnoreCase(text));
+        }
+        if (categories != null && !categories.isEmpty()) {
+            event.category.id.in(categories);
+        }
+        if (paid != null) {
+            event.paid.eq(paid);
+        }
+        if (rangeStart.isAfter(rangeEnd)) {
+            conditions.add(event.eventDate.between(rangeStart, rangeEnd));
+        }
+
+        BooleanExpression exp = conditions.stream()
+                .filter(Objects::nonNull)
+                .reduce(BooleanExpression::and)
+                .get();
+
+        List<Event> events = eventRepository.findAll(exp, pageRequest).getContent();
+
+        Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
+
+        if (sort.equals(SortQuery.VIEWS.toString())) {
+            return eventMapper.toEventShortDtoListWithSortByViews(events, viewStatMap);
+        }
+
+        return eventMapper.toEventShortDtoList(events, viewStatMap);
     }
 
-    //////////////////////////////////////////////////
 
     @Override
     public List<RequestDto> getRequestByEventId(long userId, long eventId) {
@@ -273,7 +347,7 @@ public class EventServiceImpl implements EventService {
 
         return stats.stream()
                 .collect(Collectors.toMap(
-                        stat -> eventUriAndIdMap.get(stat.getUri()), ViewStatDto:: getHits)
+                        stat -> eventUriAndIdMap.get(stat.getUri()), ViewStatDto::getHits)
                 );
     }
 }

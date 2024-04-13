@@ -6,10 +6,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.ewm.pagination.MyPageRequest;
 import ru.practicum.ewm.user.dto.UserCreateDto;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserServiceImpl;
@@ -114,7 +115,7 @@ class UserControllerTest {
     @Test
     void getAll_whenArgsIsValid_thenReturnUsersList() throws Exception {
         List<UserDto> users = List.of(userDto);
-        when(service.getAll(null, PageRequest.of(5 / 10, 10)))
+        when(service.getAll(null, new MyPageRequest(0, 10, Sort.unsorted())))
                 .thenReturn(users);
 
         String result = mvc.perform(get("/admin/users")

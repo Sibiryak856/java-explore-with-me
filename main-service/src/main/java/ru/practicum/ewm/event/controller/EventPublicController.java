@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.StatDataCreateDto;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.service.EventService;
@@ -18,6 +19,7 @@ import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static ru.practicum.ewm.EwmApp.CLIENT;
 import static ru.practicum.ewm.EwmApp.DATE_FORMAT;
 import static ru.practicum.ewm.event.controller.SortQuery.EVENT_DATE;
 
@@ -38,14 +40,14 @@ public class EventPublicController {
     @GetMapping
     public List<EventShortDto> getAll(
             @RequestParam(required = false) String text,
-            @RequestParam (required = false) List<Long> categories,
-            @RequestParam (required = false) Boolean paid,
-            @RequestParam (value = "rangeStart", defaultValue = "#{T(java.time.LocalDateTime).now()}", required = false)
+            @RequestParam(required = false) List<Long> categories,
+            @RequestParam(required = false) Boolean paid,
+            @RequestParam(value = "rangeStart", defaultValue = "#{T(java.time.LocalDateTime).now()}", required = false)
             @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeStart,
-            @RequestParam (value = "rangeEnd", defaultValue = "#{T(java.time.LocalDateTime).MAX}", required = false)
+            @RequestParam(value = "rangeEnd", defaultValue = "#{T(java.time.LocalDateTime).MAX}", required = false)
             @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeEnd,
-            @RequestParam (value = "onlyAvailable", defaultValue = "false", required = false) Boolean onlyAvailable,
-            @RequestParam (required = false) String sort,
+            @RequestParam(value = "onlyAvailable", defaultValue = "false", required = false) Boolean onlyAvailable,
+            @RequestParam(required = false) String sort,
             @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
             @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size,
             HttpServletRequest request) {
@@ -54,14 +56,20 @@ public class EventPublicController {
                         "sort={}, from={}, size={}",
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable,
                 sort, from, size);
-        Sort sort1 = Sort.unsorted();
-        if (sort != null && sort.equals(EVENT_DATE)) {
-            sort1 = Sort.by(Sort.Direction.ASC, "eventDate");
+        PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
+        if (sort != null && sort.equals(EVENT_DATE.toString())) {
+            pageRequest.withSort(Sort.Direction.ASC, "eventDate");
         }
-        PageRequest pageRequest = new MyPageRequest(from, size, sort1);
-        List<EventShortDto> shortDtoList = service.getAll(
-                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageRequest);
+        List<EventShortDto> shortDtoList = service.getAllPublic(
+                text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, pageRequest);
         log.info("Request GET /admin/events processed:{}", shortDtoList);
+        StatDataCreateDto createDto = StatDataCreateDto.builder()
+                .appName("ewm-main.service")
+                .ip(request.getRemoteAddr())
+                .created(request.getRequestURI())
+                .build();
+        CLIENT.postStat(createDto);
+        log.info("Request data sent to stat-server: {}", createDto);
         return shortDtoList;
     }
 
@@ -73,6 +81,13 @@ public class EventPublicController {
         String path = request.getRequestURI();
         EventFullDto fullDto = service.getById(id);
         log.info("Request GET /events/id={} processed:{}", id, fullDto);
+        StatDataCreateDto createDto = StatDataCreateDto.builder()
+                .appName("ewm-main.service")
+                .ip(request.getRemoteAddr())
+                .created(request.getRequestURI())
+                .build();
+        CLIENT.postStat(createDto);
+        log.info("Request data sent to stat-server: {}", createDto);
         return fullDto;
     }
 

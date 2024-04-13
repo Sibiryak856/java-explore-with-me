@@ -1,7 +1,9 @@
 package ru.practicum.ewm.event.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.user.dto.UserShortDto;
@@ -10,6 +12,8 @@ import static ru.practicum.ewm.EwmApp.DATE_FORMAT;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class EventShortDto {
 
 

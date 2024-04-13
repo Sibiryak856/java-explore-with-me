@@ -1,6 +1,38 @@
 package ru.practicum.ewm.exception;
 
+import org.springframework.http.HttpStatus;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+
+import static ru.practicum.ewm.EwmApp.FORMATTER;
+
 public class ApiError {
+
+    private List<StackTraceElement> errors;
+    private String message;
+    private String reason;
+    private String status;
+    private String timestamp;
+
+    public ApiError(Exception e, HttpStatus status) {
+        this.errors = Arrays.asList(e.getStackTrace());
+        this.message = e.getMessage();
+        this.reason = status.getReasonPhrase();
+        this.status = status.toString();
+        this.timestamp = LocalDateTime.now().format(FORMATTER);
+    }
+
+    /*public ApiError(Exception e, HttpStatus status) {
+        this.errors = Arrays.asList(e.getStackTrace());
+        this.message = e.getMessage();
+        this.reason = status.getReasonPhrase();
+        this.status = status.toString();
+        this.timestamp = LocalDateTime.now().format(FORMATTER);
+    }*/
+
+
 
     /*private static final String BAD_REQUEST_REASON = "Incorrectly made request.";
     private static final String CONFLICT_REASON = "Integrity constraint has been violated."; //отличается(3 кейса)

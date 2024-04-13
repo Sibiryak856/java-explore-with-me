@@ -37,11 +37,12 @@ public interface EventService {
 
     EventFullDto getById(long id);
 
-    List<EventShortDto> getAll(String text,
-                              List<Long> categories,
-                              Boolean paid,
-                              LocalDateTime rangeStart,
-                              LocalDateTime rangeEnd,
-                              Boolean onlyAvailable,
-                              PageRequest pageRequest);
+    List<EventShortDto> getAllPublic(String text,
+                               List<Long> categories,
+                               Boolean paid,
+                               LocalDateTime rangeStart,
+                               LocalDateTime rangeEnd,
+                               Boolean onlyAvailable,
+                               String sort,
+                               PageRequest pageRequest);
 }

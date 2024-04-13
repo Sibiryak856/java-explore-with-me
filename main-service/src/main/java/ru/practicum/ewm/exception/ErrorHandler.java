@@ -25,13 +25,6 @@ public class ErrorHandler {
         log.info(message);
         return new ErrorResponse(message);
     }
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleNotAccessException(final NotAccessException e) {
-        String message = e.getMessage();
-        log.info(message);
-        return new ErrorResponse(message);
-    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -97,6 +90,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleException(final Exception e) {
+        e.getStackTrace();
         String errorMsg = "Unexpected error occurred";
         log.error(errorMsg, e);
         return new ErrorResponse(e);

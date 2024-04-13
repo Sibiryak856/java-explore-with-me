@@ -8,6 +8,9 @@ public enum SortQuery {
 
 
     public static SortQuery from(String sort) {
+        if (sort == null) {
+            return null;
+        }
         for (SortQuery value : SortQuery.values()) {
             if (value.name().equals(sort)) {
                 return value;

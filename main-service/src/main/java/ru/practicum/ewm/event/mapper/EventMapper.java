@@ -35,6 +35,9 @@ public interface EventMapper {
     @Mapping(target = "createdOn", defaultValue = "java(LocalDateTime.now().withNano(0))")
     Event toEvent(NewEventDto eventDto, User user, Category category, Location location, EventState state);
 
+    @Mapping(target = "id", ignore = true)
+    Event update(UpdateEventBaseRequest updateEventDto, @MappingTarget Event event);
+
     @Mapping(target = "createdOn", source = "createdOn", dateFormat = DATE_FORMAT)
     @Mapping(target = "eventDate", source = "eventDate", dateFormat = DATE_FORMAT)
     @Mapping(target = "publishedOn", source = "publishedOn", dateFormat = DATE_FORMAT, defaultValue = "null")
@@ -42,54 +45,33 @@ public interface EventMapper {
     @Mapping(target = "views", defaultValue = "0L")
     EventFullDto toFullDto(Event event, @Nullable Long views);
 
-/*    @Mapping(target = "createdOn", source = "createdOn", dateFormat = DATE_FORMAT)
-    @Mapping(target = "eventDate", source = "eventDate", dateFormat = DATE_FORMAT)
-    @Mapping(target = "publishedOn", ignore = true)
     @Mapping(target = "confirmedRequests", defaultValue = "0")
     @Mapping(target = "views", defaultValue = "0L")
-        //check for NullPointer
-    EventFullDto toFullDtoBeforePublished(Event event);*/
+    EventShortDto toShortDto(Event event, @Nullable Long views);
 
-
-    @Mapping(target = "confirmedRequests", defaultValue = "0")
-    @Mapping(target = "views", defaultValue = "0L")
-    EventShortDto toShortDto(Event event, @Nullable Long views, @Nullable Integer confirmedRequests);
-
-    default List<EventShortDto> toEventShortDtos(List<Event> events, Map<Long, Long> viewStatMap) {
+    default List<EventShortDto> toEventShortDtoListWithSortByViews(List<Event> events, Map<Long, Long> viewStatMap) {
         return events.stream()
-                .map(event -> toShortDto(event, viewStatMap.get(event.getId()), null))
+                .map(event -> toShortDto(event, viewStatMap.get(event.getId())))
+                .sorted((e1, e2) -> e2.getViews().compareTo(e1.getViews()))
+                .collect(Collectors.toList());
+    }
+
+    default List<EventShortDto> toEventShortDtoList(List<Event> events, Map<Long, Long> viewStatMap) {
+        return events.stream()
+                .map(event -> toShortDto(event, viewStatMap.get(event.getId())))
+                .collect(Collectors.toList());
+    }
+
+    default List<EventFullDto> toEventFullDtoList(List<Event> events, Map<Long, Long> viewStatMap) {
+        return events.stream()
+                .map(event -> toFullDto(event, viewStatMap.get(event.getId())))
                 .collect(Collectors.toList());
     }
 
     default Map<Long, EventShortDto> toEventShortDtosMap(List<Event> events, Map<Long, Long> viewStatMap) {
         return events.stream()
-                .map(event -> toShortDto(event, viewStatMap.get(event.getId()), null))
+                .map(event -> toShortDto(event, viewStatMap.get(event.getId())))
                 .collect(Collectors.toMap(EventShortDto::getId, shortDto -> shortDto));
-    }
+    } // may be <Compilation, List<EventShortDto>>
 
-
-    /*default List<EventShortDto> toEventShortDtoList(List<Event> events, List<ViewStatDto> viewStatList) {
-        if (viewStatList.isEmpty()) {
-            return events.stream()
-                    .map(this::toShortDto)
-                    .collect(Collectors.toList());
-        } else {
-            Map<String, Long> viewStatMap = new HashMap<>();
-            for (ViewStatDto v : viewStatList) {
-                viewStatMap.put(v.getUri(), v.getHits());
-            }
-            List<EventShortDto> list = new ArrayList<>();
-            events.stream()
-                    .map(this::toShortDto)
-                    .forEach(shortDto -> {
-                        shortDto.setViews(
-                                viewStatMap.getOrDefault(String.format("/events/%d", shortDto.getId()), 0L));
-                        list.add(shortDto);
-                    });
-            return list;
-        }
-    }*/
-
-    @Mapping(target = "id", ignore = true)
-    Event update(UpdateEventBaseRequest updateEventDto, @MappingTarget Event event);
 }

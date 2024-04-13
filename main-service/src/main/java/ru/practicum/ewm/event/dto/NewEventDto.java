@@ -2,8 +2,10 @@ package ru.practicum.ewm.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.ewm.event.validation.EventDateIsAfterTwoHoursFromCurrentTime;
 
 import javax.validation.constraints.NotBlank;
@@ -16,6 +18,8 @@ import static java.lang.Boolean.TRUE;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @EventDateIsAfterTwoHoursFromCurrentTime
 public class NewEventDto {
 

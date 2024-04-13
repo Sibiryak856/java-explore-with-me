@@ -51,7 +51,7 @@ public class CompilationServiceImpl implements CompilationService {
         Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
 
         return compilationMapper.toDto(compilation,
-                eventMapper.toEventShortDtos(events, viewStatMap));
+                eventMapper.toEventShortDtoListWithSortByViews(events, viewStatMap));
     }
 
     @Override
@@ -78,7 +78,7 @@ public class CompilationServiceImpl implements CompilationService {
         Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
 
         return compilationMapper.toDto(updated,
-                eventMapper.toEventShortDtos(events, viewStatMap));
+                eventMapper.toEventShortDtoListWithSortByViews(events, viewStatMap));
     }
 
     @Override
@@ -97,6 +97,8 @@ public class CompilationServiceImpl implements CompilationService {
             List<EventShortDto> list = new ArrayList<>();
             compilation.getEvents().forEach(event ->
                     list.add(eventShortDtosMap.get(event.getId())));
+            list.sort((e1, e2) ->
+                    e2.getViews().compareTo(e1.getViews()));
             compilationDtos.add(compilationMapper.toDto(compilation, list));
         });
         return compilationDtos;
@@ -112,6 +114,6 @@ public class CompilationServiceImpl implements CompilationService {
         Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(List.copyOf(events));
 
         return compilationMapper.toDto(compilation,
-                eventMapper.toEventShortDtos(events, viewStatMap));
+                eventMapper.toEventShortDtoListWithSortByViews(events, viewStatMap));
     }
 }
