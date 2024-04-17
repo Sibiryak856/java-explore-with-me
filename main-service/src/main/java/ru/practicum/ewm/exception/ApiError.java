@@ -47,6 +47,7 @@ public class ApiError {
     private static final String ARGS_NOT_VALID_REASON = "For the requested operation the conditions are not met.";
 
     private static final String UNEXPECTED_REASON = "Unexpected error occurred";
+
     private void choseReason(Exception e) {
         String className = e.getClass().getName();
         if (className.equalsIgnoreCase(NotFoundException.class.getName())) {

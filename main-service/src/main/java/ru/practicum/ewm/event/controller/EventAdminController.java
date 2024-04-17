@@ -48,7 +48,7 @@ public class EventAdminController {
                 "users={}, states={}, categories={}, rangeStart={}, rangeEnd={}, from={}, size={}",
                 users, states, categories, rangeStart, rangeEnd, from, size);
         List<EventState> statesList;
-        if (states!= null) {
+        if (states != null) {
             statesList = states.stream()
                     .map(EventState::from)
                     .collect(Collectors.toList());

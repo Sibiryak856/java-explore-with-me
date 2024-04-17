@@ -16,7 +16,7 @@ import org.springframework.lang.Nullable;
 @EqualsAndHashCode(callSuper = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UpdateEventUserRequest extends UpdateEventBaseRequest{
+public class UpdateEventUserRequest extends UpdateEventBaseRequest {
 
     private @Nullable StateAction stateAction;
 

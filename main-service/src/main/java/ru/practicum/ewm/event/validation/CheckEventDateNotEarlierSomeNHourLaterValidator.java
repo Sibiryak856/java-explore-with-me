@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @SupportedValidationTarget(ValidationTarget.ANNOTATED_ELEMENT)
 public class CheckEventDateNotEarlierSomeNHourLaterValidator implements
-        ConstraintValidator<CheckEventDateNotEarlierSomeNHourLater, LocalDateTime>{
+        ConstraintValidator<CheckEventDateNotEarlierSomeNHourLater, LocalDateTime> {
 
     String parameter;
 

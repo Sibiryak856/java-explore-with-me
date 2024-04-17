@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "REQUESTS", schema = "PUBLIC",
-        uniqueConstraints = {@UniqueConstraint(columnNames={"EVENT_ID", "USER_ID"})})
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"EVENT_ID", "USER_ID"})})
 public class Request {
 
     @Id
