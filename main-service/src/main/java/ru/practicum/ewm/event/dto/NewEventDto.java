@@ -6,8 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.ewm.event.validation.EventDateIsAfterTwoHoursFromCurrentTime;
+import ru.practicum.ewm.event.validation.CheckEventDateNotEarlierSomeNHourLater;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -20,7 +21,6 @@ import static java.lang.Boolean.TRUE;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EventDateIsAfterTwoHoursFromCurrentTime
 public class NewEventDto {
 
     @NotBlank
@@ -28,8 +28,8 @@ public class NewEventDto {
     @Size(max = 2000, message = "{validation.name.size.too_long}")
     private String annotation;
 
-    @NotNull
     @JsonProperty("category")
+    @NotNull
     private Long categoryId;
 
     @NotBlank
@@ -37,8 +37,9 @@ public class NewEventDto {
     @Size(max = 7000, message = "{validation.name.size.too_long}")
     private String description;
 
-    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @NotNull
+    @CheckEventDateNotEarlierSomeNHourLater
     private LocalDateTime eventDate;
 
     @NotNull
@@ -47,6 +48,7 @@ public class NewEventDto {
     @Builder.Default
     private Boolean paid = FALSE;
 
+    @Min(0)
     @Builder.Default
     private Integer participantLimit = 0;
 

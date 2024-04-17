@@ -1,5 +1,6 @@
 package ru.practicum.ewm.request.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -11,15 +12,17 @@ import java.time.LocalDateTime;
 @Builder
 public class RequestDto {
 
-    private LocalDateTime created;
-
-    @JsonProperty("event")
-    private Long eventId;
-
     private Long id;
 
     @JsonProperty("requester")
     private Long requesterId;
 
+    @JsonProperty("event")
+    private Long eventId;
+
     private RequestStatus status;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime created;
+
 }

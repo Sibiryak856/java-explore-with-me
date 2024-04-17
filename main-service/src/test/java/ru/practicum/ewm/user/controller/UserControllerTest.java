@@ -56,7 +56,7 @@ class UserControllerTest {
     }
 
     @Test
-    void save_WhenUserIsValid_thenStatusIsCreatedANdReturnUserDto() throws Exception {
+    void save_WhenUserIsValid_thenStatusIsCreatedAndReturnUserDto() throws Exception {
         when(service.save(any(UserCreateDto.class)))
                 .thenReturn(userDto);
 
@@ -74,7 +74,7 @@ class UserControllerTest {
     }
 
     @Test
-    void save_whenUserEmailIsNotValid_thenReturnBadRequest() throws Exception {
+    void save_whenUserEmailIsNotValid_thenStatusIsBadRequest() throws Exception {
         createDto.setEmail("e.ru");
         mvc.perform(post("/admin/users")
                         .content(String.valueOf(mapper.writeValueAsString(createDto)))
@@ -87,7 +87,7 @@ class UserControllerTest {
     }
 
     @Test
-    void save_whenUserEmailIsNull_thenReturnBadRequest() throws Exception {
+    void save_whenUserEmailIsNull_thenStatusIsBadRequest() throws Exception {
         createDto.setEmail(null);
         mvc.perform(post("/admin/users")
                         .content(String.valueOf(mapper.writeValueAsString(createDto)))
@@ -100,7 +100,7 @@ class UserControllerTest {
     }
 
     @Test
-    void save_whenUserNameIsBlank_thenReturnBadRequest() throws Exception {
+    void save_whenUserNameIsBlank_thenStatusIsBadRequest() throws Exception {
         createDto.setName("");
         mvc.perform(post("/admin/users")
                         .content(String.valueOf(mapper.writeValueAsString(createDto)))
@@ -130,7 +130,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getAll_whenParamFromIsFalse_thenReturnUsersList() throws Exception {
+    void getAll_whenParamFromIsFalse_thenStatusIsBadRequest() throws Exception {
         mvc.perform(get("/admin/users")
                         .param("from", "-1")
                         .param("size", "10"))
@@ -140,7 +140,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getAll_whenParamSizeIsFalse_thenReturnUsersList() throws Exception {
+    void getAll_whenParamSizeIsFalse_thenStatusIsBadRequest() throws Exception {
         mvc.perform(get("/admin/users")
                         .param("from", "5")
                         .param("size", "0"))

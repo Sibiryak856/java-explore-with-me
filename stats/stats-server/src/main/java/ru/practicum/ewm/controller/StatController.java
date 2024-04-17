@@ -8,8 +8,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.StatDataCreateDto;
 import ru.practicum.ewm.ViewStatDto;
+import ru.practicum.ewm.model.StatData;
 import ru.practicum.ewm.service.StatService;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,12 +30,13 @@ public class StatController {
         this.statService = statService;
     }
 
+    @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/hit")
     public void save(@RequestBody @Valid StatDataCreateDto statData) {
         log.info("Request received: POST /hit: {}", statData);
-        statService.save(statData);
-        log.info("Request POST /hit processed");
+        StatData saved = statService.save(statData);
+        log.info("Request POST /hit processed: {}", saved);
     }
 
     @GetMapping("/stats")
@@ -44,7 +47,8 @@ public class StatController {
                                      @DateTimeFormat(pattern = DATE_FORMAT)
                                      LocalDateTime end,
                                      @RequestParam(required = false) List<String> uris,
-                                     @RequestParam(required = false, defaultValue = "false") Boolean unique) {
+                                     @RequestParam(value = "unique", required = false, defaultValue = "false")
+                                     Boolean unique) {
         log.info("Request received: GET /stats: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
         List<ViewStatDto> statDataList = statService.getHits(
                 start, end, uris, unique);

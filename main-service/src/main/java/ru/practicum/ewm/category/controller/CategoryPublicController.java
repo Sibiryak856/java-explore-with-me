@@ -27,8 +27,8 @@ public class CategoryPublicController {
 
     @GetMapping
     public List<CategoryDto> getAll(
-            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
-            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
+            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
+            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /categories: from={}, size={}", from, size);
         PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
         List<CategoryDto> categories = service.getAll(pageRequest);
@@ -37,7 +37,7 @@ public class CategoryPublicController {
     }
 
     @GetMapping("/{catId}")
-    public CategoryDto getById(@RequestHeader long catId) {
+    public CategoryDto getById(@PathVariable Long catId) {
         log.info("Request received: GET /categories/id={}", catId);
         CategoryDto categoryDto = service.getById(catId);
         log.info("Request GET /categories/id={} processed: {}", catId, categoryDto);

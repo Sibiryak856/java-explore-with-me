@@ -4,11 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.user.dto.UserShortDto;
-
-import static ru.practicum.ewm.EwmApp.DATE_FORMAT;
 
 @Data
 @Builder
@@ -16,14 +13,12 @@ import static ru.practicum.ewm.EwmApp.DATE_FORMAT;
 @AllArgsConstructor
 public class EventShortDto {
 
-
     private String annotation;
 
     private CategoryDto category;
 
     private Integer confirmedRequests;
 
-    @DateTimeFormat(pattern = DATE_FORMAT)
     private String eventDate;
 
     private Long id;
@@ -35,4 +30,5 @@ public class EventShortDto {
     private String title;
 
     private Long views;
+
 }

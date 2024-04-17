@@ -1,12 +1,17 @@
 package ru.practicum.ewm.event.model;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.compilation.model.Compilation;
 import ru.practicum.ewm.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static ru.practicum.ewm.EwmApp.DATE_FORMAT;
 
 @Entity
 @Getter
@@ -22,27 +27,29 @@ public class Event {
     @Column(name = "EVENT_ID")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
     private User initiator;
 
-    @Column(name = "ANNOTATION")
+    @Column(name = "ANNOTATION", length = 2000)
     private String annotation;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "CATEGORY_ID")
     private Category category;
 
+    @Builder.Default
     @Column(name = "CONFIRMED_REQUESTS")
-    private Integer confirmedRequests;
+    private Integer confirmedRequests = 0;
 
-    @Column(name = "DESCRIPTION")
+    @Column(name = "DESCRIPTION", length = 7000)
     private String description;
 
     @Column(name = "EVENT_DATE")
+    @DateTimeFormat(pattern = DATE_FORMAT)
     private LocalDateTime eventDate;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "LOCATION_ID")
     private Location location;
 
@@ -68,7 +75,11 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
 
-    @ManyToOne
-    @JoinColumn(name = "COMPILATION_ID")
-    private Compilation compilation;
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = "COMPILATIONS_EVENTS",
+    joinColumns = @JoinColumn(name = "EVENT_ID"),
+    inverseJoinColumns = @JoinColumn(name = "COMPILATION_ID"))
+    @Builder.Default
+    private List<Compilation> compilations = new ArrayList<>();
+
 }

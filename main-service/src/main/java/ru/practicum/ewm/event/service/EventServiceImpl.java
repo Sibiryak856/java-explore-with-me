@@ -17,6 +17,7 @@ import ru.practicum.ewm.event.model.Location;
 import ru.practicum.ewm.event.model.QEvent;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.event.repository.LocationRepository;
+import ru.practicum.ewm.exception.NotAccessException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.RequestStatus;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateRequest;
@@ -68,10 +69,9 @@ public class EventServiceImpl implements EventService {
         this.requestMapper = requestMapper;
     }
 
-
     @Transactional
     @Override
-    public EventFullDto save(long userId, NewEventDto eventDto) {
+    public EventFullDto save(Long userId, NewEventDto eventDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("User id=%d not found", userId)));
         long categoryId = eventDto.getCategoryId();
@@ -83,8 +83,9 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toFullDto(event, null);
     }
 
+
     @Override
-    public List<EventShortDto> getAllByUserId(long userId, PageRequest pageRequest) {
+    public List<EventShortDto> getAllByUserId(Long userId, PageRequest pageRequest) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -99,7 +100,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getByUserAndEventId(long userId, long eventId) {
+    public EventFullDto getByUserAndEventId(Long userId, Long eventId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -112,21 +113,21 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto update(long userId, long eventId, UpdateEventUserRequest updateEventDto) {
+    public EventFullDto update(Long userId, Long eventId, UpdateEventUserRequest updateEventDto) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
         if (event.getState().equals(PUBLISHED)) {
-            throw new IllegalArgumentException("Only pending or canceled events can be changed");
+            throw new NotAccessException("Only pending or canceled events can be changed");
         }
         if (updateEventDto.isStateNeedUpdate()) {
             switch (updateEventDto.getStateAction()) {
-                case CANCEL_REWIEW:
-                    event.setState(CANCELLED);
+                case CANCEL_REVIEW:
+                    event.setState(CANCELED);
                     break;
-                case SEND_TO_REWIEW:
+                case SEND_TO_REVIEW:
                     event.setState(PENDING);
                     break;
                 default:
@@ -173,7 +174,7 @@ public class EventServiceImpl implements EventService {
             events = eventRepository.findAll(pageRequest).getContent();
         } else {
             BooleanExpression exp = conditions.stream()
-                    .reduce(BooleanExpression :: and)
+                    .reduce(BooleanExpression::and)
                     .get();
             events = eventRepository.findAll(exp, pageRequest).getContent();
         }
@@ -184,11 +185,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto moderate(long eventId, UpdateEventAdminRequest updateEventDto) {
+    public EventFullDto moderate(Long eventId, UpdateEventAdminRequest updateEventDto) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
         if (!event.getState().equals(EventState.PENDING)) {
-            throw new IllegalArgumentException(
+            throw new NotAccessException(
                     String.format("Cannot publish the event because it's not in the right state: %s",
                             event.getState()));
         }
@@ -200,7 +201,7 @@ public class EventServiceImpl implements EventService {
         if (updateEventDto.isStateNeedUpdate()) {
             switch (updateEventDto.getStateAction()) {
                 case REJECT_EVENT:
-                    event.setState(CANCELLED);
+                    event.setState(CANCELED);
                     break;
                 case PUBLISH_EVENT:
                     event.setState(PUBLISHED);
@@ -220,11 +221,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getById(long id) {
+    public EventFullDto getById(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", id)));
         if (!event.getState().equals(PUBLISHED)) {
-            throw new IllegalArgumentException(String.format("Event id=%d not published yet", id));
+            throw new NotFoundException(String.format("Event id=%d not published yet", id));
         }
 
         Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(List.of(event));
@@ -244,25 +245,23 @@ public class EventServiceImpl implements EventService {
         QEvent event = QEvent.event;
 
         List<BooleanExpression> conditions = new ArrayList<>();
-        conditions.addAll(List.of(
-                event.state.eq(PUBLISHED),
-                onlyAvailable ?
-                        event.confirmedRequests.lt(event.participantLimit) :
-                        event.confirmedRequests.goe(event.participantLimit))
-        );
+        conditions.add(event.state.eq(PUBLISHED));
 
-        if (text != null && text.length() > 1) {
-            event.annotation.containsIgnoreCase(text)
-                    .or(event.description.containsIgnoreCase(text));
+        if (text != null) {
+            conditions.add(event.annotation.containsIgnoreCase(text)
+                    .or(event.description.containsIgnoreCase(text)));
         }
         if (categories != null && !categories.isEmpty()) {
-            event.category.id.in(categories);
+            conditions.add(event.category.id.in(categories));
         }
         if (paid != null) {
-            event.paid.eq(paid);
+            conditions.add(event.paid.eq(paid));
         }
         if (rangeStart.isAfter(rangeEnd)) {
             conditions.add(event.eventDate.between(rangeStart, rangeEnd));
+        }
+        if (onlyAvailable) {
+            conditions.add(event.confirmedRequests.lt(event.participantLimit));
         }
 
         BooleanExpression exp = conditions.stream()
@@ -274,7 +273,7 @@ public class EventServiceImpl implements EventService {
 
         Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
 
-        if (sort.equals(SortQuery.VIEWS.toString())) {
+        if (sort != null && sort.equals(SortQuery.VIEWS.toString())) {
             return eventMapper.toEventShortDtoListWithSortByViews(events, viewStatMap);
         }
 
@@ -283,7 +282,7 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    public List<RequestDto> getRequestByEventId(long userId, long eventId) {
+    public List<RequestDto> getRequestByEventId(Long userId, Long eventId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -295,8 +294,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventRequestStatusUpdateResult updateRequestsStatus(
-            long userId,
-            long eventId,
+            Long userId,
+            Long eventId,
             EventRequestStatusUpdateRequest request) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
@@ -311,23 +310,24 @@ public class EventServiceImpl implements EventService {
             throw new IllegalArgumentException("Limit of participation requests reached");
         }
 
-        List<Request> updatingRequests = requestRepository.findAllByIdIn(request.getRequestIds());
+        List<Request> updatingRequests = requestRepository.findAllByIdInAndStatusIs(
+                request.getRequestIds(), RequestStatus.PENDING);
+        if (updatingRequests.isEmpty() || updatingRequests.size() < request.getRequestIds().size()) {
+            throw new IllegalArgumentException(
+                    "Only request with status " + RequestStatus.PENDING + " can be changed");
+        }
         for (Request r : updatingRequests) {
-            if (!r.getStatus().equals(RequestStatus.PENDING)) {
-                throw new IllegalArgumentException(
-                        "Only request with status " + RequestStatus.PENDING + " can be changed");
-            }
             if (participantLimit == currentCountParticipant) {
                 r.setStatus(RequestStatus.REJECTED);
             }
-            if (request.getStatus().equals(RequestStatus.PENDING)) {
+            if (request.getStatus().equals(RequestStatus.CONFIRMED)) {
                 r.setStatus(RequestStatus.CONFIRMED);
                 currentCountParticipant++;
-                event.setConfirmedRequests(currentCountParticipant);
-                eventRepository.save(event);
             } else {
                 r.setStatus(RequestStatus.REJECTED);
             }
+            event.setConfirmedRequests(currentCountParticipant);
+            eventRepository.save(event);
         }
 
         return requestMapper.toStatusUpdateResult(
@@ -335,15 +335,18 @@ public class EventServiceImpl implements EventService {
     }
 
     public static Map<Long, Long> getEventViews(List<Event> events) {
+        if (events.isEmpty()) {
+            return null;
+        }
         Map<String, Long> eventUriAndIdMap = events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toMap(id -> "/events/" + id, Function.identity()));
 
         List<ViewStatDto> stats = CLIENT.getStats(
-                LocalDateTime.MIN.format(FORMATTER),
-                LocalDateTime.MAX.format(FORMATTER),
+                LocalDateTime.now().minusYears(10).format(FORMATTER),
+                LocalDateTime.now().withNano(0).format(FORMATTER),
                 List.copyOf(eventUriAndIdMap.keySet()),
-                Boolean.FALSE);
+                Boolean.TRUE);
 
         return stats.stream()
                 .collect(Collectors.toMap(

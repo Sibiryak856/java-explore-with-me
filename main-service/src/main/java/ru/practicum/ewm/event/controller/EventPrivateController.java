@@ -37,12 +37,8 @@ public class EventPrivateController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public EventFullDto save(@RequestHeader long userId,
-                             @RequestBody @Validated NewEventDto eventDto
-                             /*BindingResult errors*/) {
-        /*if (errors.hasErrors()) {
-            throw new ValidationException(errors);
-        }*/
+    public EventFullDto save(@PathVariable Long userId,
+                             @RequestBody @Valid NewEventDto eventDto) {
         log.info("Request received POST /users/userId={}/events: event {}", userId, eventDto);
         EventFullDto savedEvent = service.save(userId, eventDto);
         log.info("Request POST /users/userId={}/events processed: event={} is created", userId, savedEvent);
@@ -51,9 +47,9 @@ public class EventPrivateController {
 
     @GetMapping
     public List<EventShortDto> getAllByUser(
-            @PathVariable long userId,
-            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
-            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
+            @PathVariable Long userId,
+            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
+            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /users/userId={}/events: from={}, size={}", userId, from, size);
         PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
         List<EventShortDto> shortDtoList = service.getAllByUserId(userId, pageRequest);
@@ -63,8 +59,8 @@ public class EventPrivateController {
 
     @GetMapping("/{eventId}")
     public EventFullDto getByUserAndEventId(
-            @PathVariable long userId,
-            @PathVariable long eventId) {
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
         log.info("Request received: GET /users/userId={}/events/eventId={}", userId, eventId);
         EventFullDto fullDto = service.getByUserAndEventId(userId, eventId);
         log.info("Request GET /users/userId={}/events/eventId={} processed:{}", userId, eventId, fullDto);
@@ -72,13 +68,9 @@ public class EventPrivateController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto update(@RequestHeader long userId,
-                               @RequestParam long eventId,
-                               @RequestBody @Valid UpdateEventUserRequest updateEventDto/*,
-                               BindingResult errors*/) {
-        /*if (errors.hasErrors()) {
-            throw new ValidationException(errors);
-        }*/
+    public EventFullDto update(@PathVariable Long userId,
+                               @PathVariable Long eventId,
+                               @RequestBody @Valid UpdateEventUserRequest updateEventDto) {
         log.info("Request received PATCH /users/userId={}/events/eventId={}: event {}",
                 userId, eventId, updateEventDto);
         EventFullDto updatedEvent = service.update(userId, eventId, updateEventDto);
@@ -88,8 +80,8 @@ public class EventPrivateController {
     }
 
     @GetMapping("/{eventId}/requests")
-    public List<RequestDto> getRequestsByEvent(@PathVariable long userId,
-                                               @PathVariable long eventId) {
+    public List<RequestDto> getRequestsByEvent(@PathVariable Long userId,
+                                               @PathVariable Long eventId) {
         log.info("Request received: GET /users/userId={}/events/eventId={}/requests", userId, eventId);
         List<RequestDto> requests = service.getRequestByEventId(userId, eventId);
         log.info("Request GET /users/userId={}/events/eventId={}/requests processed:{}", userId, eventId, requests);
@@ -98,8 +90,8 @@ public class EventPrivateController {
 
     @PatchMapping("/{eventId}/requests")
     public EventRequestStatusUpdateResult updateRequestStatus(
-            @PathVariable long userId,
-            @PathVariable long eventId,
+            @PathVariable Long userId,
+            @PathVariable Long eventId,
             @RequestBody @Valid EventRequestStatusUpdateRequest request) {
         log.info("Request received PATCH /users/userId={}/events/eventId={}/requests: request {}",
                 userId, eventId, request);

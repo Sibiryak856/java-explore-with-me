@@ -10,12 +10,14 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
-@Constraint(validatedBy = EventDateIsAfterTwoHoursFromCurrentTimeValidator.class)
-@Target(ElementType.TYPE)
+@Constraint(validatedBy = CheckEventDateNotEarlierSomeNHourLaterValidator.class)
+@Target(ElementType.FIELD)
 @Documented
-public @interface EventDateIsAfterTwoHoursFromCurrentTime {
+public @interface CheckEventDateNotEarlierSomeNHourLater {
 
     String message() default "EventDate must be no earlier than 2 hours from the current time";
+
+    String parameter() default "2";
 
     Class<?>[] groups() default {};
 

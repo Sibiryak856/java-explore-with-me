@@ -34,8 +34,8 @@ public class CategoryAdminController {
     }
 
     @Transactional
-    @PatchMapping("/{catId }")
-    public CategoryDto update(@RequestHeader long catId,
+    @PatchMapping("/{catId}")
+    public CategoryDto update(@PathVariable Long catId,
                               @RequestBody @Valid CategoryRequestDto categoryRequestDto) {
         log.info("Request received: PATCH /admin/categories/{}: {}",catId, categoryRequestDto);
         CategoryDto updatedCategory = service.update(catId, categoryRequestDto);
@@ -45,7 +45,7 @@ public class CategoryAdminController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{catId}")
-    public void delete(@RequestHeader long catId) {
+    public void delete(@PathVariable Long catId) {
         log.info("Request received: DELETE /admin/categories/id={}", catId);
         service.delete(catId);
         log.info("Request DELETE /admin/categories/id={} processed", catId);

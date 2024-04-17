@@ -26,10 +26,10 @@ public class StatData {
     private String appName;
 
     @Column(name = "URI")
-    private String uri; //URI
+    private String uri;
 
     @Column(name = "IP")
-    private String ip; //IP
+    private String ip;
 
     @Column(name = "CREATED_AT")
     @DateTimeFormat(pattern = DATE_FORMAT)

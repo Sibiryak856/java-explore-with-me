@@ -1,5 +1,6 @@
 package ru.practicum.ewm.request.service;
 
+import org.springframework.stereotype.Service;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.EventState;
 import ru.practicum.ewm.event.repository.EventRepository;
@@ -15,6 +16,7 @@ import ru.practicum.ewm.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
 public class RequestServiceImpl implements RequestService {
 
     public RequestRepository requestRepository;
@@ -41,9 +43,7 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException(String.format("User with id=%d was not found", userId)));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
-        if (requestRepository.findByRequesterIdAndEventId(userId, event).isPresent()) {
-            throw new IllegalArgumentException("Request already exists");
-        }
+
         if (event.getInitiator().getId().equals(userId)) {
             throw new IllegalArgumentException("Can't add a request to participate in your event");
         }
@@ -61,6 +61,7 @@ public class RequestServiceImpl implements RequestService {
                 .status(RequestStatus.PENDING)
                 .created(LocalDateTime.now().withNano(0))
                 .build();
+
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(RequestStatus.CONFIRMED);
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
@@ -78,7 +79,7 @@ public class RequestServiceImpl implements RequestService {
         }
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(String.format("Request with id=%d was not found", requestId)));
-        request.setStatus(RequestStatus.CANCELLED);
+        request.setStatus(RequestStatus.CANCELED);
         Event event = request.getEvent();
         int confirmedRequest = event.getConfirmedRequests();
         if (confirmedRequest > 0) {

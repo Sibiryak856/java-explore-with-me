@@ -25,8 +25,8 @@ public class RequestPrivateController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public RequestDto save(@PathVariable long userId,
-                           @RequestParam long eventId) {
+    public RequestDto save(@PathVariable Long userId,
+                           @RequestParam Long eventId) {
         log.info("Request received: POST /users/userId={}/requests eventId={}", userId, eventId);
         RequestDto request = service.save(userId, eventId);
         log.info("Request POST /users/userId={}/requests eventId={} processed: {}", userId, eventId, request);
@@ -34,7 +34,7 @@ public class RequestPrivateController {
     }
 
     @GetMapping
-    public List<RequestDto> getAllByUser(@PathVariable long userId) {
+    public List<RequestDto> getAllByUser(@PathVariable Long userId) {
         log.info("Request received: GET /users/userId={}/requests:", userId);
         List<RequestDto> requests = service.getAllById(userId);
         log.info("Request GET /users/userId={}/requests processed: {}", userId, requests);
@@ -42,8 +42,8 @@ public class RequestPrivateController {
     }
 
     @PatchMapping("/{requestId}/cancel")
-    public RequestDto cancelRequest(@PathVariable long userId,
-                                    @PathVariable long requestId) {
+    public RequestDto cancelRequest(@PathVariable Long userId,
+                                    @PathVariable Long requestId) {
         log.info("Request received: PATCH /users/userId={}/requests/requestId={}/cancel:", userId, requestId);
         RequestDto request = service.cancelRequest(userId, requestId);
         log.info("Request PATCH /users/userId={}/requests/requestId={}/cancel processed: {}",

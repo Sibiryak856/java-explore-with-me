@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
+import ru.practicum.ewm.compilation.dto.UpdateCompilationDto;
 import ru.practicum.ewm.compilation.service.CompilationService;
 
 import javax.transaction.Transactional;
@@ -41,11 +42,11 @@ public class CompilationAdminController {
 
     @Transactional
     @PatchMapping("/{compId}")
-    public CompilationDto update(@PathVariable long compId,
-                                 @RequestBody @Valid NewCompilationDto dto) {
-        log.info("Request received: PATCH /admin/compilations/compId={}", compId);
+    public CompilationDto update(@PathVariable Long compId,
+                                 @RequestBody @Valid UpdateCompilationDto dto) {
+        log.info("Request received: PATCH /admin/compilations/compId={}: update: {}", compId, dto);
         CompilationDto updatedCompilation = service.update(compId, dto);
-        log.info("Request POST /admin/compilations/compId={} processed: compilation={} is updated",
+        log.info("Request PATCH /admin/compilations/compId={} processed: compilation={} is updated",
                 compId, updatedCompilation);
         return updatedCompilation;
     }

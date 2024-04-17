@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAll(List<Long> ids, Pageable pageable) {
-        return mapper.toDtoList(repository.findAll(ids, pageable));
+        return mapper.toDtoList(repository.findAllByIdIn(ids, pageable));
     }
 
     @Override

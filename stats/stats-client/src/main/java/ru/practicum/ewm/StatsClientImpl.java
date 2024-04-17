@@ -1,7 +1,6 @@
 package ru.practicum.ewm;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -18,13 +17,13 @@ import java.util.List;
 @Slf4j
 public class StatsClientImpl implements StatsClient {
 
-    protected final RestTemplate rest;
+    private RestTemplate rest;
 
-    private final String serverUrl;
+    private String serverUrl;
 
-    public StatsClientImpl(@Value("http://localhost:9090") String serverUrl, RestTemplateBuilder builder) {
+    public StatsClientImpl(String serverUrl) {
         this.serverUrl = serverUrl;
-        this.rest = builder
+        this.rest = new RestTemplateBuilder()
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
                 .requestFactory(HttpComponentsClientHttpRequestFactory::new)
                 .build();
@@ -46,19 +45,18 @@ public class StatsClientImpl implements StatsClient {
 
         ResponseEntity<List<ViewStatDto>> ewmServerResponse;
         try {
-            ewmServerResponse = rest.exchange(builder.build().toString(),
+            ewmServerResponse = rest.exchange(
+                    builder.build().toString(),
                     HttpMethod.GET,
                     null,
                     new ParameterizedTypeReference<>() {
-                    });
-            if (ewmServerResponse.getStatusCode().is2xxSuccessful()) {
-                return ewmServerResponse.getBody();
-            }
+                    }
+            );
         } catch (Exception e) {
             log.error("StatsClient error: message={}, stacktrace=", e.getMessage(), e);
             return Collections.emptyList();
         }
-        return Collections.emptyList();
+        return ewmServerResponse.getBody();
     }
 
     @Override

@@ -5,14 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.event.model.EventState;
 import ru.practicum.ewm.event.service.EventService;
-import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.pagination.MyPageRequest;
 
 import javax.validation.Valid;
@@ -44,8 +42,8 @@ public class EventAdminController {
             @RequestParam (required = false) List<Long> categories,
             @RequestParam (required = false) @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeStart,
             @RequestParam (required = false) @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeEnd,
-            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
-            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
+            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
+            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /admin/events: " +
                 "users={}, states={}, categories={}, rangeStart={}, rangeEnd={}, from={}, size={}",
                 users, states, categories, rangeStart, rangeEnd, from, size);
@@ -65,12 +63,8 @@ public class EventAdminController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto moderate(@RequestParam long eventId,
-                               @RequestBody @Valid UpdateEventAdminRequest updateEventDto,
-                               BindingResult errors) {
-        if (errors.hasErrors()) {
-            throw new ValidationException(errors);
-        }
+    public EventFullDto moderate(@PathVariable Long eventId,
+                                 @RequestBody @Valid UpdateEventAdminRequest updateEventDto) {
         log.info("Request received PATCH /admin/events/eventId={}: event {}", eventId, updateEventDto);
         EventFullDto moderatedEvent = service.moderate(eventId, updateEventDto);
         log.info("Request PATCH /admin/events/eventId={} processed: event:{} is moderated",

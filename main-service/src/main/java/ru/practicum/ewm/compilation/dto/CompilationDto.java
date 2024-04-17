@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CompilationDto {
 
+
     private List<EventShortDto> events;
 
     private Long id;

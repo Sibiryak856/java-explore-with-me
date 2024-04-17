@@ -1,5 +1,6 @@
 package ru.practicum.ewm.event.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -16,30 +17,26 @@ import ru.practicum.ewm.pagination.MyPageRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static ru.practicum.ewm.EwmApp.CLIENT;
-import static ru.practicum.ewm.EwmApp.DATE_FORMAT;
+import static ru.practicum.ewm.EwmApp.*;
 import static ru.practicum.ewm.event.controller.SortQuery.EVENT_DATE;
 
 @RestController
 @Validated
 @Slf4j
 @RequestMapping("/events")
+@RequiredArgsConstructor
 public class EventPublicController {
 
-    private final EventService service;
-
     @Autowired
-    public EventPublicController(EventService service) {
-        this.service = service;
-    }
-
+    private final EventService service;
 
     @GetMapping
     public List<EventShortDto> getAll(
-            @RequestParam(required = false) String text,
+            @RequestParam(required = false) @Size(min = 2) String text,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) Boolean paid,
             @RequestParam(value = "rangeStart", defaultValue = "#{T(java.time.LocalDateTime).now()}", required = false)
@@ -48,9 +45,10 @@ public class EventPublicController {
             @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime rangeEnd,
             @RequestParam(value = "onlyAvailable", defaultValue = "false", required = false) Boolean onlyAvailable,
             @RequestParam(required = false) String sort,
-            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
-            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size,
+            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
+            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size,
             HttpServletRequest request) {
+        LocalDateTime now = LocalDateTime.now().withNano(0);
         log.info("Request received: GET /events: " +
                         "text={}, categories={}, paid={}, rangeStart={}, rangeEnd={}, onlyAvailable={}, " +
                         "sort={}, from={}, size={}",
@@ -58,7 +56,7 @@ public class EventPublicController {
                 sort, from, size);
         PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
         if (sort != null && sort.equals(EVENT_DATE.toString())) {
-            pageRequest.withSort(Sort.Direction.ASC, "eventDate");
+            pageRequest = pageRequest.withSort(Sort.Direction.ASC, "eventDate");
         }
         List<EventShortDto> shortDtoList = service.getAllPublic(
                 text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, pageRequest);
@@ -66,7 +64,8 @@ public class EventPublicController {
         StatDataCreateDto createDto = StatDataCreateDto.builder()
                 .appName("ewm-main.service")
                 .ip(request.getRemoteAddr())
-                .created(request.getRequestURI())
+                .uri(request.getRequestURI())
+                .created(now.format(FORMATTER))
                 .build();
         CLIENT.postStat(createDto);
         log.info("Request data sent to stat-server: {}", createDto);
@@ -74,7 +73,7 @@ public class EventPublicController {
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getById(@PathVariable long id,
+    public EventFullDto getById(@PathVariable Long id,
                                 HttpServletRequest request) {
         log.info("Request received: GET /events/id={} from ip={}", id, request.getRemoteAddr());
         String ip = request.getRemoteAddr();
@@ -84,7 +83,8 @@ public class EventPublicController {
         StatDataCreateDto createDto = StatDataCreateDto.builder()
                 .appName("ewm-main.service")
                 .ip(request.getRemoteAddr())
-                .created(request.getRequestURI())
+                .uri(request.getRequestURI())
+                .created(fullDto.getCreatedOn())
                 .build();
         CLIENT.postStat(createDto);
         log.info("Request data sent to stat-server: {}", createDto);

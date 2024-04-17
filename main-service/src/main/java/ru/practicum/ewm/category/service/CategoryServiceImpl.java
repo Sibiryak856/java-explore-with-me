@@ -9,6 +9,7 @@ import ru.practicum.ewm.category.mapper.CategoryMapper;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.exception.NotAccessException;
 import ru.practicum.ewm.exception.NotFoundException;
 
 import java.util.List;
@@ -50,8 +51,8 @@ public class CategoryServiceImpl implements CategoryService {
         }
         if (!eventRepository.findAllByCategoryId(id)
                 .isEmpty()) {
-            throw new IllegalArgumentException("The category is not empty");
-        }  // try to e from DB
+            throw new NotAccessException("The category is not empty");
+        }
         categoryRepository.deleteById(id);
     }
 

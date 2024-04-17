@@ -24,8 +24,8 @@ public class CompilationPublicController {
     @GetMapping
     public List<CompilationDto> getAll(
             @RequestParam(value = "pinned", defaultValue = "true", required = false) Boolean pinned,
-            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
-            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
+            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
+            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /compilations: pinned={}, from={}, size={}", pinned, from, size);
         PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
         List<CompilationDto> compilations = service.getAll(pinned, pageRequest);
@@ -34,7 +34,7 @@ public class CompilationPublicController {
     }
 
     @GetMapping("/{compId}")
-    public CompilationDto getById(@PathVariable long compId) {
+    public CompilationDto getById(@PathVariable Long compId) {
         log.info("Request received: GET /compilations/compId={}", compId);
         CompilationDto compilation = service.getById(compId);
         log.info("Request GET /compilations/compId={} processed: {}", compId, compilation);

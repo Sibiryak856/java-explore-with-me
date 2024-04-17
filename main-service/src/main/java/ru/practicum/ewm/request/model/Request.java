@@ -14,7 +14,8 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "REQUESTS", schema = "PUBLIC")
+@Table(name = "REQUESTS", schema = "PUBLIC",
+        uniqueConstraints = {@UniqueConstraint(columnNames={"EVENT_ID", "USER_ID"})})
 public class Request {
 
     @Id
@@ -23,12 +24,12 @@ public class Request {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "EVENT_ID")
-    private Event event;
-
-    @ManyToOne
     @JoinColumn(name = "USER_ID")
     private User requester;
+
+    @ManyToOne
+    @JoinColumn(name = "EVENT_ID")
+    private Event event;
 
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)

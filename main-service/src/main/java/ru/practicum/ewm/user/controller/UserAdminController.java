@@ -40,8 +40,8 @@ public class UserAdminController {
     @GetMapping
     public List<UserDto> getAll(
             @RequestParam(required = false) List<Long> ids,
-            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) int from,
-            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
+            @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
+            @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /admin/users: ids={}, from={}, size={}", ids, from, size);
         PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
         List<UserDto> users = service.getAll(ids, pageRequest);

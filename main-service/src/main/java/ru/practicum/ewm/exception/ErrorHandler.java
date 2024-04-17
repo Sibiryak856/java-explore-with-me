@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,48 +21,55 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(final NotFoundException e) {
-        String message = e.getMessage();
-        log.info(message);
-        return new ErrorResponse(message);
+    public ApiError handleNotFoundException(final NotFoundException e) {
+        log.info(e.getMessage());
+        return new ApiError(e, e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
+    public ApiError handleNotAccessException(final NotAccessException e) {
+        String message = e.getMessage();
+        log.info(message);
+        return new ApiError(e, message);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
         String message = e.getCause().getCause().getMessage();
         log.info(message);
-        return new ErrorResponse(message);
+        return new ApiError(e, message);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleValidationException(final ValidationException e) {
+    public ApiError handleIllegalArgumentException(final IllegalArgumentException e) {
         String message = e.getMessage();
         log.info(message);
-        return new ErrorResponse(message);
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleIllegalArgumentException(final IllegalArgumentException e) {
-        String message = e.getMessage();
-        log.info(message);
-        return new ErrorResponse(message);
+        return new ApiError(e, message);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleMissingRequestHeaderException(final MissingRequestHeaderException e) {
-        String message = "Requested incorrect header";
+    public ApiError handleMissingServletRequestParameterException(final MissingServletRequestParameterException e) {
+        String message = e.getMessage();
         log.info(message);
-        return new ErrorResponse(message);
+        return new ApiError(e, message);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleMissingRequestHeaderException(final MissingRequestHeaderException e) {
+        String message = e.getMessage();
+        log.info(message);
+        return new ApiError(e, message);
     }
 
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleMethodArgumentNotValidException(
+    public ApiError handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e) {
         Map<String, String> errors = new HashMap<>();
         e.getBindingResult().getAllErrors().forEach((error) -> {
@@ -70,12 +78,12 @@ public class ErrorHandler {
             errors.put(fieldName, errorMessage);
         });
         log.info(errors.toString());
-        return errors;
+        return new ApiError(e, e.getMessage());
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ConstraintViolationException.class)
-    public Map<String, String> handleConstraintViolationException(
+    public ApiError handleConstraintViolationException(
             ConstraintViolationException e) {
         Map<String, String> errors = new HashMap<>();
         e.getConstraintViolations().forEach((error) -> {
@@ -84,15 +92,15 @@ public class ErrorHandler {
             errors.put(fieldName, errorMessage);
         });
         log.info(errors.toString());
-        return errors;
+        return new ApiError(e, e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleException(final Exception e) {
+    public ApiError handleException(final Exception e) {
         e.getStackTrace();
         String errorMsg = "Unexpected error occurred";
         log.error(errorMsg, e);
-        return new ErrorResponse(e);
+        return new ApiError(e, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

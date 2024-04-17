@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("SELECT * FROM User AS u " +
+    @Query("SELECT u FROM User AS u " +
             "WHERE ((:ids) IS NULL OR u.id IN (:ids))")
-    List<User> findAll(@Param("ids") List<Long> ids, Pageable pageable);
+    List<User> findAllByIdIn(@Param("ids") List<Long> ids, Pageable pageable);
 }

@@ -6,7 +6,7 @@ public enum EventState {
 
     PUBLISHED,
 
-    CANCELLED;
+    CANCELED;
 
     public static EventState from(String state) {
         for (EventState value : EventState.values()) {
