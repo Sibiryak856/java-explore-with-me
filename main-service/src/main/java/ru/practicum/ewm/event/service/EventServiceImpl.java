@@ -10,12 +10,10 @@ import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.controller.SortQuery;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.mapper.EventMapper;
-import ru.practicum.ewm.event.mapper.LocationMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.EventState;
 import ru.practicum.ewm.event.model.QEvent;
 import ru.practicum.ewm.event.repository.EventRepository;
-import ru.practicum.ewm.event.repository.LocationRepository;
 import ru.practicum.ewm.exception.NotAccessException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.RequestStatus;
@@ -43,8 +41,6 @@ public class EventServiceImpl implements EventService {
 
     public EventRepository eventRepository;
     private EventMapper eventMapper;
-    private LocationMapper locationMapper;
-    private LocationRepository locationRepository;
     private UserRepository userRepository;
     private CategoryRepository categoryRepository;
     private RequestRepository requestRepository;
@@ -53,15 +49,11 @@ public class EventServiceImpl implements EventService {
     @Autowired
     public EventServiceImpl(EventRepository eventRepository,
                             EventMapper eventMapper,
-                            LocationMapper locationMapper,
-                            LocationRepository locationRepository,
                             UserRepository userRepository,
                             CategoryRepository categoryRepository,
                             RequestRepository requestRepository, RequestMapper requestMapper) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
-        this.locationMapper = locationMapper;
-        this.locationRepository = locationRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.requestRepository = requestRepository;
