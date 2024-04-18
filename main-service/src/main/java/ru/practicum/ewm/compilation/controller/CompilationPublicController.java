@@ -27,7 +27,10 @@ public class CompilationPublicController {
             @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
             @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /compilations: pinned={}, from={}, size={}", pinned, from, size);
-        PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
+        PageRequest pageRequest = new MyPageRequest(
+                from,
+                size < 10 ? size = 10 : size,
+                Sort.unsorted());
         List<CompilationDto> compilations = service.getAll(pinned, pageRequest);
         log.info("Request GET /compilations processed: {}", compilations);
         return compilations;
