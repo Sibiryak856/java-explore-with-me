@@ -92,6 +92,10 @@ public class CompilationServiceImpl implements CompilationService {
         List<Event> events = new ArrayList<>();
         compilations.forEach(compilation -> events.addAll(compilation.getEvents()));
 
+        if (events.isEmpty()) {
+            return compilationMapper.toDtoList(compilations);
+        }
+
         Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
 
         Map<Long, EventShortDto> eventShortDtosMap = eventMapper.toEventShortDtosMap(

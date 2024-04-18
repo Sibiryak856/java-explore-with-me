@@ -21,15 +21,11 @@ public class Compilation {
     @Column(name = "COMPILATION_ID")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "EVENT_ID")
-    private Event event;
+    @Column(name = "TITLE")
+    private String title;
 
     @Column(name = "PINNED")
     private Boolean pinned;
-
-    @Column(name = "TITLE")
-    private String title;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "COMPILATIONS_EVENTS",

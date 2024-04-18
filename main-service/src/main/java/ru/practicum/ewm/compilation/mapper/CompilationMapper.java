@@ -34,4 +34,5 @@ public interface CompilationMapper {
     @Mapping(target = "events", ignore = true)
     Compilation update(UpdateCompilationDto dto, @MappingTarget Compilation compilation);
 
+    List<CompilationDto> toDtoList(List<Compilation> compilations);
 }

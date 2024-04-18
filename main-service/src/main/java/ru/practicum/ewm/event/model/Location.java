@@ -21,6 +21,6 @@ public class Location {
     @Column(name = "LATITUDE")
     private Float latitude;
 
-    @Column(name = "LON")
+    @Column(name = "LONGITUDE")
     private Float longitude;
 }
