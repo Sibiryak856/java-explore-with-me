@@ -27,14 +27,14 @@ public class Event {
     @Column(name = "EVENT_ID")
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
     private User initiator;
 
     @Column(name = "ANNOTATION", length = 2000)
     private String annotation;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CATEGORY_ID")
     private Category category;
 
@@ -49,7 +49,7 @@ public class Event {
     @DateTimeFormat(pattern = DATE_FORMAT)
     private LocalDateTime eventDate;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LOCATION_ID")
     private Location location;
 
@@ -75,7 +75,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "COMPILATIONS_EVENTS",
     joinColumns = @JoinColumn(name = "EVENT_ID"),
     inverseJoinColumns = @JoinColumn(name = "COMPILATION_ID"))
