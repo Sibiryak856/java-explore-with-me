@@ -9,7 +9,6 @@ import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.EventState;
-import ru.practicum.ewm.event.model.Location;
 import ru.practicum.ewm.user.mapper.UserMapper;
 import ru.practicum.ewm.user.model.User;
 
@@ -19,7 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
-import static ru.practicum.ewm.EwmApp.DATE_FORMAT;
+import static ru.practicum.ewm.MainService.DATE_FORMAT;
 
 @Component
 @Mapper(componentModel = SPRING,
@@ -31,7 +30,7 @@ public interface EventMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "publishedOn", ignore = true)
     @Mapping(target = "createdOn", expression = "java(LocalDateTime.now().withNano(0))")
-    Event toEvent(NewEventDto eventDto, User initiator, Category category, Location location, EventState state);
+    Event toEvent(NewEventDto eventDto, User initiator, Category category, EventState state);
 
 
     @Mapping(target = "id", ignore = true)

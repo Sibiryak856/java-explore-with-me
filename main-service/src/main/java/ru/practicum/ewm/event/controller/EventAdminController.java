@@ -13,6 +13,7 @@ import ru.practicum.ewm.event.model.EventState;
 import ru.practicum.ewm.event.service.EventService;
 import ru.practicum.ewm.pagination.MyPageRequest;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -20,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.EwmApp.DATE_FORMAT;
+import static ru.practicum.ewm.MainService.DATE_FORMAT;
 
 @RestController
 @Validated
@@ -62,6 +63,7 @@ public class EventAdminController {
         return fullDtos;
     }
 
+    @Transactional
     @PatchMapping("/{eventId}")
     public EventFullDto moderate(@PathVariable Long eventId,
                                  @RequestBody @Valid UpdateEventAdminRequest updateEventDto) {

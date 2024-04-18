@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.event.model.EventState;
+import ru.practicum.ewm.event.model.Location;
 import ru.practicum.ewm.user.dto.UserShortDto;
 
 @Data
@@ -36,7 +37,7 @@ public class EventFullDto {
 
     private String createdOn;
 
-    private LocationDto location;
+    private Location location;
 
     private Boolean requestModeration;
 

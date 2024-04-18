@@ -21,7 +21,7 @@ import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static ru.practicum.ewm.EwmApp.*;
+import static ru.practicum.ewm.MainService.*;
 import static ru.practicum.ewm.event.controller.SortQuery.EVENT_DATE;
 
 @RestController

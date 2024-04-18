@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static ru.practicum.ewm.EwmApp.FORMATTER;
+import static ru.practicum.ewm.MainService.FORMATTER;
 
 @Getter
 public class ApiError {

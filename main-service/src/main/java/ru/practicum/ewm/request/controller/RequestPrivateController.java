@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.request.dto.RequestDto;
 import ru.practicum.ewm.request.service.RequestService;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @RestController
@@ -23,6 +24,7 @@ public class RequestPrivateController {
         this.service = service;
     }
 
+    @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public RequestDto save(@PathVariable Long userId,
@@ -41,6 +43,7 @@ public class RequestPrivateController {
         return requests;
     }
 
+    @Transactional
     @PatchMapping("/{requestId}/cancel")
     public RequestDto cancelRequest(@PathVariable Long userId,
                                     @PathVariable Long requestId) {

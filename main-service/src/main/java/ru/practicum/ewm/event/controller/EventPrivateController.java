@@ -17,6 +17,7 @@ import ru.practicum.ewm.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.RequestDto;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -67,6 +68,7 @@ public class EventPrivateController {
         return fullDto;
     }
 
+    @Transactional
     @PatchMapping("/{eventId}")
     public EventFullDto update(@PathVariable Long userId,
                                @PathVariable Long eventId,
@@ -88,6 +90,7 @@ public class EventPrivateController {
         return requests;
     }
 
+    @Transactional
     @PatchMapping("/{eventId}/requests")
     public EventRequestStatusUpdateResult updateRequestStatus(
             @PathVariable Long userId,

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import ru.practicum.ewm.event.model.Location;
 import ru.practicum.ewm.event.validation.CheckEventDateNotEarlierSomeNHourLater;
 
 import javax.validation.constraints.Min;
@@ -34,7 +35,7 @@ public class UpdateEventBaseRequest {
     @CheckEventDateNotEarlierSomeNHourLater
     private LocalDateTime eventDate;
 
-    private LocationDto location;
+    private Location location;
 
     private Boolean paid;
 

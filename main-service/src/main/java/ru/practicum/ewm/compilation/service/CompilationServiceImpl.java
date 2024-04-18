@@ -104,14 +104,13 @@ public class CompilationServiceImpl implements CompilationService {
         List<CompilationDto> compilationDtos = new ArrayList<>();
         compilations.forEach(compilation -> {
             List<EventShortDto> list = new ArrayList<>();
-            compilation.getEvents().forEach(event -> {
-                if (event != null) {
-                    list.add(eventShortDtosMap.get(event.getId()));
-                }
-            });
-
-            list.sort((e1, e2) ->
-                    e2.getViews().compareTo(e1.getViews()));
+            if (!compilation.getEvents().isEmpty()) {
+                compilation.getEvents().forEach(event -> {
+                    if (event != null) {
+                        list.add(eventShortDtosMap.get(event.getId()));
+                    }
+                });
+            }
             compilationDtos.add(compilationMapper.toDto(compilation, list));
         });
         return compilationDtos;

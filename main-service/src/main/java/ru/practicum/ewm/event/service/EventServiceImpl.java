@@ -13,7 +13,6 @@ import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.mapper.LocationMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.EventState;
-import ru.practicum.ewm.event.model.Location;
 import ru.practicum.ewm.event.model.QEvent;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.event.repository.LocationRepository;
@@ -35,8 +34,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.EwmApp.CLIENT;
-import static ru.practicum.ewm.EwmApp.FORMATTER;
+import static ru.practicum.ewm.MainService.CLIENT;
+import static ru.practicum.ewm.MainService.FORMATTER;
 import static ru.practicum.ewm.event.model.EventState.*;
 
 @Service
@@ -77,9 +76,8 @@ public class EventServiceImpl implements EventService {
         long categoryId = eventDto.getCategoryId();
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException(String.format("Category id=%d not found", categoryId)));
-        Location location = locationRepository.save(locationMapper.toLocation(eventDto.getLocation()));
         Event event = eventRepository.save(
-                eventMapper.toEvent(eventDto, user, category, location, EventState.PENDING));
+                eventMapper.toEvent(eventDto, user, category, EventState.PENDING));
         return eventMapper.toFullDto(event, null);
     }
 

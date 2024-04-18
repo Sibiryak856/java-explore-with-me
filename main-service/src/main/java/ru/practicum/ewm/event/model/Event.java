@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.practicum.ewm.EwmApp.DATE_FORMAT;
+import static ru.practicum.ewm.MainService.DATE_FORMAT;
 
 @Entity
 @Getter
@@ -49,7 +49,7 @@ public class Event {
     @DateTimeFormat(pattern = DATE_FORMAT)
     private LocalDateTime eventDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "LOCATION_ID")
     private Location location;
 
@@ -75,10 +75,10 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "COMPILATIONS_EVENTS",
-    joinColumns = @JoinColumn(name = "EVENT_ID"),
-    inverseJoinColumns = @JoinColumn(name = "COMPILATION_ID"))
+            joinColumns = @JoinColumn(name = "EVENT_ID"),
+            inverseJoinColumns = @JoinColumn(name = "COMPILATION_ID"))
     @Builder.Default
     private List<Compilation> compilations = new ArrayList<>();
 

@@ -16,9 +16,9 @@ public class LocationDto {
 
     @NotNull
     @JsonProperty("lat")
-    private Float latitude;
+    private Double latitude;
 
     @NotNull
     @JsonProperty("lon")
-    private Float longitude;
+    private Double longitude;
 }
