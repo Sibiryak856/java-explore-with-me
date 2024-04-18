@@ -1,9 +1,35 @@
 package ru.practicum.ewm.user.controller;
 
-/*@WebMvcTest(controllers = UserAdminController.class)*/
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.ewm.pagination.MyPageRequest;
+import ru.practicum.ewm.user.dto.UserCreateDto;
+import ru.practicum.ewm.user.dto.UserDto;
+import ru.practicum.ewm.user.service.UserServiceImpl;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(controllers = UserAdminController.class)
 class UserControllerTest {
 
-    /*@Autowired
+    @Autowired
     private ObjectMapper mapper;
 
     @MockBean
@@ -121,5 +147,5 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(service, never()).getAll(anyList(), any(Pageable.class));
-    }*/
+    }
 }
