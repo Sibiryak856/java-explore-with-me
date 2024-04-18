@@ -12,7 +12,7 @@ public class EwmApp {
     public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(DATE_FORMAT);
 
-    public static final StatsClient CLIENT = new StatsClientImpl("${stats-server.url}");
+    public static final StatsClient CLIENT = new StatsClientImpl("http://localhost:9090");
 
     public static void main(String[] args) {
         SpringApplication.run(EwmApp.class, args);
