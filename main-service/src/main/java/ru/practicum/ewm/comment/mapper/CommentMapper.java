@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
+import ru.practicum.ewm.comment.dto.CommentAdminRequestDto;
 import ru.practicum.ewm.comment.dto.CommentDto;
 import ru.practicum.ewm.comment.dto.CommentRequestDto;
 import ru.practicum.ewm.comment.model.Comment;
@@ -28,11 +29,15 @@ public interface CommentMapper {
     List<CommentDto> toListCommentDto(List<Comment> comments);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "event", source = "event")
+    @Mapping(target = "state", source = "state")
     Comment toComment(CommentRequestDto createDto,
-                      User user,
                       Event event,
+                      User author,
                       CommentState state,
-                      LocalDateTime now);
+                      LocalDateTime created);
 
     Comment update(CommentRequestDto commentDto, @MappingTarget Comment comment);
+
+    Comment update(CommentAdminRequestDto commentDto, @MappingTarget Comment comment);
 }

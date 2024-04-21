@@ -1,15 +1,15 @@
 package ru.practicum.ewm.comment.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Data
-@SuperBuilder(builderMethodName = "baseBuilder")
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentRequestDto {

@@ -13,7 +13,7 @@ import javax.validation.Valid;
 
 @RestController
 @Slf4j
-@RequestMapping("/users/{userId}/events/{eventsId}/comments")
+@RequestMapping("/users/{userId}/events/{eventId}/comments")
 public class CommentPrivateController {
 
     private final CommentService service;
@@ -38,9 +38,9 @@ public class CommentPrivateController {
 
     @PatchMapping("/{commentId}")
     public CommentDto update(@PathVariable Long userId,
-                               @PathVariable Long eventId,
-                               @PathVariable Long commentId,
-                               @RequestBody @Valid CommentRequestDto commentDto) {
+                             @PathVariable Long eventId,
+                             @PathVariable Long commentId,
+                             @RequestBody @Valid CommentRequestDto commentDto) {
         log.info("Request received PATCH /users/userId={}/events/eventId={}/comments/commentId={}: comment {}",
                 userId, eventId, commentId, commentDto);
         CommentDto updatedComment = service.update(userId, eventId, commentId, commentDto);

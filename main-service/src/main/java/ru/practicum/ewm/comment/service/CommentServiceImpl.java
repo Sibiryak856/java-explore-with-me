@@ -1,6 +1,7 @@
 package ru.practicum.ewm.comment.service;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,17 @@ public class CommentServiceImpl implements CommentService {
     private UserRepository userRepository;
     private EventRepository eventRepository;
 
+    @Autowired
+    public CommentServiceImpl(CommentRepository commentRepository,
+                              CommentMapper commentMapper,
+                              UserRepository userRepository,
+                              EventRepository eventRepository) {
+        this.commentRepository = commentRepository;
+        this.commentMapper = commentMapper;
+        this.userRepository = userRepository;
+        this.eventRepository = eventRepository;
+    }
+
     @Transactional
     @Override
     public CommentDto save(Long userId, Long eventId, CommentRequestDto createDto) {
@@ -46,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
                     String.format("Cannot publish comment because event is not published yet"));
         }
         Comment comment = commentRepository.save(
-                commentMapper.toComment(createDto, user, event, CommentState.PENDING, LocalDateTime.now()));
+                commentMapper.toComment(createDto, event, user, CommentState.PENDING, LocalDateTime.now()));
         return commentMapper.toCommentDto(comment);
     }
 
@@ -59,8 +71,8 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new NotFoundException(String.format("Event id=%d not found", eventId)));
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(String.format("Comment id=%d not found", commentDto)));
-        if (!comment.getState().equals(CommentState.PUBLISHED)) {
-            throw new NotAccessException("Only pending or canceled events can be changed");
+        if (comment.getState().equals(CommentState.PUBLISHED)) {
+            throw new NotAccessException("Only pending or canceled comments can be changed");
         }
         Comment updatedComment = commentRepository.save(
                 commentMapper.update(commentDto, comment));

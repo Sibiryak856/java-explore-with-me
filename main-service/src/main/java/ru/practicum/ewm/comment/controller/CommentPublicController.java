@@ -26,9 +26,9 @@ public class CommentPublicController {
         this.service = service;
     }
 
-    @GetMapping("/{eventId}")
+    @GetMapping
     public List<CommentDto> getAllByEvent(
-            @PathVariable Long eventId,
+            @RequestParam Long eventId,
             @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
             @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /admin/comments/eventId={}:, from={}, size={}", eventId, from, size);

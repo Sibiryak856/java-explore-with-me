@@ -24,11 +24,11 @@ public class Comment {
     @Column(name = "TEXT")
     private String text;
 
-    @ManyToOne(fetch =  FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "EVENT_ID")
     private Event event;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "USER_ID")
     private User author;
 
