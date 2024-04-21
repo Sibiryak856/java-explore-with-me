@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.event.model.EventState;
+import ru.practicum.ewm.event.requestModel.EventAdminRequest;
 import ru.practicum.ewm.event.service.EventService;
-import ru.practicum.ewm.pagination.MyPageRequest;
+import ru.practicum.ewm.pagination.CustomPageRequest;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.practicum.ewm.MainService.DATE_FORMAT;
+import static ru.practicum.ewm.event.Constants.DATE_FORMAT;
 
 @RestController
 @Validated
@@ -56,14 +56,14 @@ public class EventAdminController {
         } else {
             statesList = null;
         }
-        PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
-        List<EventFullDto> fullDtos =
-                service.getAllByAdmin(users, statesList, categories, rangeStart, rangeEnd, pageRequest);
-        log.info("Request GET /admin/events processed:{}", fullDtos);
-        return fullDtos;
+        PageRequest pageRequest = new CustomPageRequest(from, size, Sort.unsorted());
+        List<EventFullDto> fullDtoList = service.getAll(
+                        new EventAdminRequest(users, statesList, categories, rangeStart, rangeEnd),
+                        pageRequest);
+        log.info("Request GET /admin/events processed:{}", fullDtoList);
+        return fullDtoList;
     }
 
-    @Transactional
     @PatchMapping("/{eventId}")
     public EventFullDto moderate(@PathVariable Long eventId,
                                  @RequestBody @Valid UpdateEventAdminRequest updateEventDto) {

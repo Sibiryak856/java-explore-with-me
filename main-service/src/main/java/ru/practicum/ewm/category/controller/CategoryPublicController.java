@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.service.CategoryService;
-import ru.practicum.ewm.pagination.MyPageRequest;
+import ru.practicum.ewm.pagination.CustomPageRequest;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -30,7 +30,7 @@ public class CategoryPublicController {
             @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
             @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /categories: from={}, size={}", from, size);
-        PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
+        PageRequest pageRequest = new CustomPageRequest(from, size, Sort.unsorted());
         List<CategoryDto> categories = service.getAll(pageRequest);
         log.info("Request GET /categories processed: {}", categories);
         return categories;

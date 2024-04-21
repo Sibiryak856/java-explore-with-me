@@ -1,6 +1,7 @@
 package ru.practicum.ewm.request.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.EventState;
 import ru.practicum.ewm.event.repository.EventRepository;
@@ -37,6 +38,7 @@ public class RequestServiceImpl implements RequestService {
         this.requestMapper = requestMapper;
     }
 
+    @Transactional
     @Override
     public RequestDto save(long userId, long eventId) {
         User user = userRepository.findById(userId)
@@ -64,14 +66,13 @@ public class RequestServiceImpl implements RequestService {
 
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(RequestStatus.CONFIRMED);
-            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
-            eventRepository.save(event);
         }
 
         return requestMapper.toDto(
                 requestRepository.save(request));
     }
 
+    @Transactional
     @Override
     public RequestDto cancelRequest(long userId, long requestId) {
         if (!userRepository.existsById(userId)) {
@@ -80,16 +81,11 @@ public class RequestServiceImpl implements RequestService {
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException(String.format("Request with id=%d was not found", requestId)));
         request.setStatus(RequestStatus.CANCELED);
-        Event event = request.getEvent();
-        int confirmedRequest = event.getConfirmedRequests();
-        if (confirmedRequest > 0) {
-            event.setConfirmedRequests(confirmedRequest - 1);
-            eventRepository.save(event);
-        }
         return requestMapper.toDto(
                 requestRepository.save(request));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<RequestDto> getAllById(long userId) {
         if (!userRepository.existsById(userId)) {

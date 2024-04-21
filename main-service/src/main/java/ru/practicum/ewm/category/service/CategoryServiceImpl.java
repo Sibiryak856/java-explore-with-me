@@ -3,6 +3,7 @@ package ru.practicum.ewm.category.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.dto.CategoryRequestDto;
 import ru.practicum.ewm.category.mapper.CategoryMapper;
@@ -29,6 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
         this.mapper = mapper;
     }
 
+    @Transactional
     @Override
     public CategoryDto save(CategoryRequestDto dto) {
         return mapper.toDto(
@@ -36,6 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
                         mapper.toCategory(dto)));
     }
 
+    @Transactional
     @Override
     public CategoryDto update(Long id, CategoryRequestDto dto) {
         Category updatingCategory = categoryRepository.findById(id)
@@ -44,23 +47,22 @@ public class CategoryServiceImpl implements CategoryService {
         return mapper.toDto(categoryRepository.save(updatingCategory));
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
-        if (!categoryRepository.existsById(id)) {
-            throw new NotFoundException(String.format("Category with id=%d was not found", id));
-        }
-        if (!eventRepository.findAllByCategoryId(id)
-                .isEmpty()) {
+        if (eventRepository.countByCategoryId(id) > 0) {
             throw new NotAccessException("The category is not empty");
         }
         categoryRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CategoryDto> getAll(Pageable pageable) {
         return mapper.toDtoList(categoryRepository.findAll(pageable));
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CategoryDto getById(long catId) {
         Category category = categoryRepository.findById(catId)

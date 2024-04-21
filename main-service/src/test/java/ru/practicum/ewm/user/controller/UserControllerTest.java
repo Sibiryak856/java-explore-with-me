@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.ewm.pagination.MyPageRequest;
+import ru.practicum.ewm.pagination.CustomPageRequest;
 import ru.practicum.ewm.user.dto.UserCreateDto;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserServiceImpl;
@@ -114,7 +114,7 @@ class UserControllerTest {
     @Test
     void getAll_whenArgsIsValid_thenReturnUsersList() throws Exception {
         List<UserDto> users = List.of(userDto);
-        when(service.getAll(null, new MyPageRequest(0, 10, Sort.unsorted())))
+        when(service.getAll(null, new CustomPageRequest(0, 10, Sort.unsorted())))
                 .thenReturn(users);
 
         String result = mvc.perform(get("/admin/users")

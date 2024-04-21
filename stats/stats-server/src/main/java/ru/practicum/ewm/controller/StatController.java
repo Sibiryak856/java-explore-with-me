@@ -11,7 +11,6 @@ import ru.practicum.ewm.ViewStatDto;
 import ru.practicum.ewm.model.StatData;
 import ru.practicum.ewm.service.StatService;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +29,6 @@ public class StatController {
         this.statService = statService;
     }
 
-    @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/hit")
     public void save(@RequestBody @Valid StatDataCreateDto statData) {

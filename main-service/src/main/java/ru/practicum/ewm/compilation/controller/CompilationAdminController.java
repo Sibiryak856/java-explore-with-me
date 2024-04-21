@@ -10,7 +10,6 @@ import ru.practicum.ewm.compilation.dto.NewCompilationDto;
 import ru.practicum.ewm.compilation.dto.UpdateCompilationDto;
 import ru.practicum.ewm.compilation.service.CompilationService;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 @RestController
@@ -22,7 +21,6 @@ public class CompilationAdminController {
     @Autowired
     private CompilationService service;
 
-    @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public CompilationDto save(@RequestBody @Valid NewCompilationDto dto) {
@@ -40,7 +38,6 @@ public class CompilationAdminController {
         log.info("Request DELETE /admin/compilations/compId={} processed", compId);
     }
 
-    @Transactional
     @PatchMapping("/{compId}")
     public CompilationDto update(@PathVariable Long compId,
                                  @RequestBody @Valid UpdateCompilationDto dto) {

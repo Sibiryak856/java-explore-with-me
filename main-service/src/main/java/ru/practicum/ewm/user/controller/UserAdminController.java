@@ -7,12 +7,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.pagination.MyPageRequest;
+import ru.practicum.ewm.pagination.CustomPageRequest;
 import ru.practicum.ewm.user.dto.UserCreateDto;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserService;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -27,7 +26,6 @@ public class UserAdminController {
 
     private final UserService service;
 
-    @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public UserDto save(@RequestBody @Valid UserCreateDto userCreateDto) {
@@ -43,7 +41,7 @@ public class UserAdminController {
             @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
             @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /admin/users: ids={}, from={}, size={}", ids, from, size);
-        PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
+        PageRequest pageRequest = new CustomPageRequest(from, size, Sort.unsorted());
         List<UserDto> users = service.getAll(ids, pageRequest);
         log.info("Request GET /admin/users processed: {}", users);
         return users;

@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
-import static ru.practicum.ewm.MainService.DATE_FORMAT;
+import static ru.practicum.ewm.event.Constants.DATE_FORMAT;
 
 @Component
 @Mapper(componentModel = SPRING,
@@ -42,38 +42,48 @@ public interface EventMapper {
     @Mapping(target = "createdOn", source = "event.createdOn", dateFormat = DATE_FORMAT)
     @Mapping(target = "eventDate", source = "event.eventDate", dateFormat = DATE_FORMAT)
     @Mapping(target = "publishedOn", source = "event.publishedOn", dateFormat = DATE_FORMAT)
-    @Mapping(target = "confirmedRequests", defaultValue = "0")
+    @Mapping(target = "confirmedRequests", source = "confirmedRequests", defaultValue = "0")
     @Mapping(target = "views", source = "views", defaultValue = "0L")
-    EventFullDto toFullDto(Event event, Long views);
+    EventFullDto toFullDto(Event event, Long views, Long confirmedRequests);
 
     @Mapping(target = "eventDate", source = "event.eventDate", dateFormat = DATE_FORMAT)
-    @Mapping(target = "confirmedRequests", defaultValue = "0")
+    @Mapping(target = "confirmedRequests", source = "confirmedRequests", defaultValue = "0")
     @Mapping(target = "views", source = "views")
-    EventShortDto toShortDto(Event event, Long views);
+    EventShortDto toShortDto(Event event, Long views, Long confirmedRequests) ;
 
-    default List<EventShortDto> toEventShortDtoListWithSortByViews(List<Event> events, Map<Long, Long> viewStatMap) {
+    @Mapping(target = "eventDate", source = "event.eventDate", dateFormat = DATE_FORMAT)
+    @Mapping(target = "confirmedRequests", ignore = true, defaultValue = "0")
+    @Mapping(target = "views", ignore = true, defaultValue = "0")
+    EventShortDto toShortDto(Event event);
+
+    default List<EventShortDto> toEventShortDtoListWithSortByViews(List<Event> events,
+                                                                   Map<Long, Long> viewStatMap,
+                                                                   Map<Long, Long> confirmedRequests) {
         return events.stream()
-                .map(event -> toShortDto(event, viewStatMap.getOrDefault(event.getId(), 0L)))
+                .map(event -> toShortDto(event,
+                        viewStatMap.getOrDefault(event.getId(), 0L),
+                        confirmedRequests.getOrDefault(event.getId(), 0L)))
                 .sorted((e1, e2) -> e2.getViews().compareTo(e1.getViews()))
                 .collect(Collectors.toList());
     }
 
-    default List<EventShortDto> toEventShortDtoList(List<Event> events, Map<Long, Long> viewStatMap) {
+    default List<EventShortDto> toEventShortDtoList(List<Event> events,
+                                                    Map<Long, Long> viewStatMap,
+                                                    Map<Long, Long> confirmedRequests) {
         return events.stream()
-                .map(event -> toShortDto(event, viewStatMap.get(event.getId())))
+                .map(event -> toShortDto(event,
+                        viewStatMap.getOrDefault(event.getId(), 0L),
+                        confirmedRequests.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
     }
 
-    default List<EventFullDto> toEventFullDtoList(List<Event> events, Map<Long, Long> viewStatMap) {
+    default List<EventFullDto> toEventFullDtoList(List<Event> events,
+                                                  Map<Long, Long> viewStatMap,
+                                                  Map<Long, Long> confirmedRequests) {
         return events.stream()
-                .map(event -> toFullDto(event, viewStatMap.get(event.getId())))
+                .map(event -> toFullDto(event,
+                        viewStatMap.getOrDefault(event.getId(), 0L),
+                        confirmedRequests.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
     }
-
-    default Map<Long, EventShortDto> toEventShortDtosMap(List<Event> events, Map<Long, Long> viewStatMap) {
-        return events.stream()
-                .map(event -> toShortDto(event, viewStatMap.get(event.getId())))
-                .collect(Collectors.toMap(EventShortDto::getId, shortDto -> shortDto));
-    }
-
 }

@@ -8,7 +8,6 @@ import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.dto.CategoryRequestDto;
 import ru.practicum.ewm.category.service.CategoryService;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 @RestController
@@ -23,7 +22,6 @@ public class CategoryAdminController {
         this.service = service;
     }
 
-    @Transactional
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public CategoryDto save(@RequestBody @Valid CategoryRequestDto categoryRequestDto) {
@@ -33,7 +31,6 @@ public class CategoryAdminController {
         return createdCategory;
     }
 
-    @Transactional
     @PatchMapping("/{catId}")
     public CategoryDto update(@PathVariable Long catId,
                               @RequestBody @Valid CategoryRequestDto categoryRequestDto) {

@@ -2,12 +2,12 @@ package ru.practicum.ewm.event.service;
 
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.ewm.event.dto.*;
-import ru.practicum.ewm.event.model.EventState;
+import ru.practicum.ewm.event.requestModel.EventAdminRequest;
+import ru.practicum.ewm.event.requestModel.EventPublicRequest;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.RequestDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
@@ -26,23 +26,13 @@ public interface EventService {
                                                         Long eventId,
                                                         EventRequestStatusUpdateRequest request);
 
-    List<EventFullDto> getAllByAdmin(List<Long> users,
-                                     List<EventState> statesList,
-                                     List<Long> categories,
-                                     LocalDateTime rangeStart,
-                                     LocalDateTime rangeEnd,
-                                     PageRequest pageRequest);
+    List<EventFullDto> getAll(EventAdminRequest request, PageRequest pageRequest);
 
     EventFullDto moderate(Long eventId, UpdateEventAdminRequest updateEventDto);
 
     EventFullDto getById(Long id);
 
-    List<EventShortDto> getAllPublic(String text,
-                               List<Long> categories,
-                               Boolean paid,
-                               LocalDateTime rangeStart,
-                               LocalDateTime rangeEnd,
-                               Boolean onlyAvailable,
+    List<EventShortDto> getAll(EventPublicRequest request,
                                String sort,
                                PageRequest pageRequest);
 }

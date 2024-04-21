@@ -1,12 +1,14 @@
 package ru.practicum.ewm;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -14,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Collections;
 import java.util.List;
 
+@Component
 @Slf4j
 public class StatsClientImpl implements StatsClient {
 
@@ -21,7 +24,7 @@ public class StatsClientImpl implements StatsClient {
 
     private String serverUrl;
 
-    public StatsClientImpl(String serverUrl) {
+    public StatsClientImpl(@Value("http://stats-server:9090") String serverUrl) {
         this.serverUrl = serverUrl;
         this.rest = new RestTemplateBuilder()
                 .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))

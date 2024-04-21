@@ -3,23 +3,20 @@ package ru.practicum.ewm.compilation.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
 import ru.practicum.ewm.compilation.dto.UpdateCompilationDto;
 import ru.practicum.ewm.compilation.mapper.CompilationMapper;
 import ru.practicum.ewm.compilation.model.Compilation;
 import ru.practicum.ewm.compilation.repository.CompilationRepository;
-import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
-import ru.practicum.ewm.event.service.EventServiceImpl;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.request.repository.RequestRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class CompilationServiceImpl implements CompilationService {
@@ -42,6 +39,7 @@ public class CompilationServiceImpl implements CompilationService {
         this.eventMapper = eventMapper;
     }
 
+    @Transactional
     @Override
     public CompilationDto save(NewCompilationDto newCompilationDto) {
         List<Event> events = eventRepository.findAllByIdIn(newCompilationDto.getEvents());
@@ -51,22 +49,17 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = compilationRepository.save(
                 compilationMapper.toCompilation(newCompilationDto, events));
 
-        Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
-
         return compilationMapper.toDto(
-                compilation,
-                eventMapper.toEventShortDtoListWithSortByViews(events, viewStatMap));
+                compilation);
     }
 
+    @Transactional
     @Override
     public void delete(Long compId) {
-        if (!compilationRepository.existsById(compId)) {
-            throw new NotFoundException(
-                    String.format("Compilation with id=%d was not found", compId));
-        }
         compilationRepository.deleteById(compId);
     }
 
+    @Transactional
     @Override
     public CompilationDto update(long compId, UpdateCompilationDto dto) {
         Compilation compilation = compilationRepository.findById(compId)
@@ -80,52 +73,22 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation updated = compilationRepository.save(
                 compilationMapper.update(dto, compilation));
 
-        Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
-
-        return compilationMapper.toDto(updated,
-                eventMapper.toEventShortDtoListWithSortByViews(events, viewStatMap));
+        return compilationMapper.toDto(updated);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CompilationDto> getAll(Boolean pinned, PageRequest pageRequest) {
         List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageRequest);
-        List<Event> events = new ArrayList<>();
-        compilations.forEach(compilation -> events.addAll(compilation.getEvents()));
-
-        if (events.isEmpty()) {
-            return compilationMapper.toDtoList(compilations);
-        }
-
-        Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
-
-        Map<Long, EventShortDto> eventShortDtosMap = eventMapper.toEventShortDtosMap(
-                events, viewStatMap);
-
-        List<CompilationDto> compilationDtos = new ArrayList<>();
-        compilations.forEach(compilation -> {
-            List<EventShortDto> list = new ArrayList<>();
-            if (!compilation.getEvents().isEmpty()) {
-                compilation.getEvents().forEach(event -> {
-                    if (event != null) {
-                        list.add(eventShortDtosMap.get(event.getId()));
-                    }
-                });
-            }
-            compilationDtos.add(compilationMapper.toDto(compilation, list));
-        });
-        return compilationDtos;
+        return compilationMapper.toDtoList(compilations);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CompilationDto getById(long compId) {
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("Compilation with id=%d was not found", compId)));
-        List<Event> events = compilation.getEvents();
-
-        Map<Long, Long> viewStatMap = EventServiceImpl.getEventViews(events);
-
-        return compilationMapper.toDto(compilation,
-                eventMapper.toEventShortDtoListWithSortByViews(events, viewStatMap));
+        return compilationMapper.toDto(compilation);
     }
 }

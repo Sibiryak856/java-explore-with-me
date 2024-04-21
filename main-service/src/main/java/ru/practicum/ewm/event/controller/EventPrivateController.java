@@ -12,12 +12,11 @@ import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.dto.UpdateEventUserRequest;
 import ru.practicum.ewm.event.service.EventService;
-import ru.practicum.ewm.pagination.MyPageRequest;
+import ru.practicum.ewm.pagination.CustomPageRequest;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.request.dto.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.request.dto.RequestDto;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -52,7 +51,7 @@ public class EventPrivateController {
             @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
             @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /users/userId={}/events: from={}, size={}", userId, from, size);
-        PageRequest pageRequest = new MyPageRequest(from, size, Sort.unsorted());
+        PageRequest pageRequest = new CustomPageRequest(from, size, Sort.unsorted());
         List<EventShortDto> shortDtoList = service.getAllByUserId(userId, pageRequest);
         log.info("Request GET /users/userId={}/events processed:{}", userId, shortDtoList);
         return shortDtoList;
@@ -68,7 +67,6 @@ public class EventPrivateController {
         return fullDto;
     }
 
-    @Transactional
     @PatchMapping("/{eventId}")
     public EventFullDto update(@PathVariable Long userId,
                                @PathVariable Long eventId,
@@ -90,7 +88,6 @@ public class EventPrivateController {
         return requests;
     }
 
-    @Transactional
     @PatchMapping("/{eventId}/requests")
     public EventRequestStatusUpdateResult updateRequestStatus(
             @PathVariable Long userId,

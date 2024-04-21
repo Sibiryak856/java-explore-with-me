@@ -23,15 +23,15 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleNotFoundException(final NotFoundException e) {
         log.info(e.getMessage());
-        return new ApiError(e, e.getMessage());
+        return new ApiError(e, e.getMessage(), "The required object was not found.", HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleNotAccessException(final NotAccessException e) {
-        String message = e.getMessage();
-        log.info(message);
-        return new ApiError(e, message);
+        log.info(e.getMessage());
+        return new ApiError(e, e.getMessage(),
+                "For the requested operation the conditions are not met.", HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler
@@ -39,15 +39,15 @@ public class ErrorHandler {
     public ApiError handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
         String message = e.getCause().getCause().getMessage();
         log.info(message);
-        return new ApiError(e, message);
+        return new ApiError(e, message, "Integrity constraint has been violated.", HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleIllegalArgumentException(final IllegalArgumentException e) {
-        String message = e.getMessage();
-        log.info(message);
-        return new ApiError(e, message);
+        log.info(e.getMessage());
+        return new ApiError(e, e.getMessage(),
+                "For the requested operation the conditions are not met.", HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
@@ -55,7 +55,7 @@ public class ErrorHandler {
     public ApiError handleMissingServletRequestParameterException(final MissingServletRequestParameterException e) {
         String message = e.getMessage();
         log.info(message);
-        return new ApiError(e, message);
+        return new ApiError(e, message, "Incorrectly made request.", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
@@ -63,7 +63,7 @@ public class ErrorHandler {
     public ApiError handleMissingRequestHeaderException(final MissingRequestHeaderException e) {
         String message = e.getMessage();
         log.info(message);
-        return new ApiError(e, message);
+        return new ApiError(e, message, "Incorrectly made request.", HttpStatus.BAD_REQUEST);
     }
 
 
@@ -78,7 +78,8 @@ public class ErrorHandler {
             errors.put(fieldName, errorMessage);
         });
         log.info(errors.toString());
-        return new ApiError(e, e.getMessage());
+        return new ApiError(e, e.getMessage(),
+                "For the requested operation the conditions are not met.", HttpStatus.FORBIDDEN);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -92,13 +93,12 @@ public class ErrorHandler {
             errors.put(fieldName, errorMessage);
         });
         log.info(errors.toString());
-        return new ApiError(e, e.getMessage());
+        return new ApiError(e, e.getMessage(), "Incorrectly made request.", HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError handleException(final Exception e) {
-        e.getStackTrace();
         String errorMsg = "Unexpected error occurred";
         log.error(errorMsg, e);
         return new ApiError(e, HttpStatus.INTERNAL_SERVER_ERROR);

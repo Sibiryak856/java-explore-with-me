@@ -19,11 +19,6 @@ services:
     depends_on:
       - stats-db
     environment:
-      - DB_NAME=statsDb
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - DB_HOST=stats-db
-      - DB_PORT=5432
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statsDb
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
@@ -42,7 +37,7 @@ services:
       - POSTGRES_PASSWORD=root
 
   ewm-service:
-    build: ./main-service
+    build: main-service
     image: ewm-service
     container_name: ewm_service_container
     ports:
@@ -51,11 +46,6 @@ services:
       - stats-server
       - ewm-db
     environment:
-      - DB_NAME=exploreDb
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=root
-      - DB_HOST=ewm-db
-      - DB_PORT=5432
       - STATS_SERVER_URL=http://stats-server:9090
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/exploreDb
       - SPRING_DATASOURCE_USERNAME=root

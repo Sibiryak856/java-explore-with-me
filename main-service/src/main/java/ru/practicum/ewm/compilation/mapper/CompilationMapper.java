@@ -9,7 +9,6 @@ import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
 import ru.practicum.ewm.compilation.dto.UpdateCompilationDto;
 import ru.practicum.ewm.compilation.model.Compilation;
-import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 
@@ -27,8 +26,7 @@ public interface CompilationMapper {
     @Mapping(target = "events", source = "eventsList")
     Compilation toCompilation(NewCompilationDto dto, List<Event> eventsList);
 
-    @Mapping(target = "events", source = "eventsList")
-    CompilationDto toDto(Compilation compilation, List<EventShortDto> eventsList);
+    CompilationDto toDto(Compilation compilation);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "events", ignore = true)

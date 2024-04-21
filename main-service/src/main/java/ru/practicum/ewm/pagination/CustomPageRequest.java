@@ -3,10 +3,10 @@ package ru.practicum.ewm.pagination;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-public class MyPageRequest extends PageRequest {
+public class CustomPageRequest extends PageRequest {
     int from;
 
-    public MyPageRequest(int from, int size, Sort sort) {
+    public CustomPageRequest(int from, int size, Sort sort) {
         super(from / size, size, sort);
         this.from = from;
     }

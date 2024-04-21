@@ -3,15 +3,13 @@ package ru.practicum.ewm.event.model;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewm.category.model.Category;
-import ru.practicum.ewm.compilation.model.Compilation;
 import ru.practicum.ewm.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import static ru.practicum.ewm.MainService.DATE_FORMAT;
+import static ru.practicum.ewm.event.Constants.DATE_FORMAT;
+
 
 @Entity
 @Getter
@@ -27,20 +25,16 @@ public class Event {
     @Column(name = "EVENT_ID")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "USER_ID")
     private User initiator;
 
     @Column(name = "ANNOTATION", length = 2000)
     private String annotation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "CATEGORY_ID")
     private Category category;
-
-    @Builder.Default
-    @Column(name = "CONFIRMED_REQUESTS")
-    private Integer confirmedRequests = 0;
 
     @Column(name = "DESCRIPTION", length = 7000)
     private String description;
@@ -75,11 +69,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "COMPILATIONS_EVENTS",
-            joinColumns = @JoinColumn(name = "EVENT_ID"),
-            inverseJoinColumns = @JoinColumn(name = "COMPILATION_ID"))
-    @Builder.Default
-    private List<Compilation> compilations = new ArrayList<>();
+    @Transient
+    private Long confirmedRequest;
 
 }
