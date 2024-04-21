@@ -13,7 +13,6 @@ import ru.practicum.ewm.comment.model.CommentState;
 import ru.practicum.ewm.comment.service.CommentService;
 import ru.practicum.ewm.pagination.CustomPageRequest;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
@@ -62,7 +61,7 @@ public class CommentAdminController {
 
     @PatchMapping("/{commentId}")
     public CommentDto moderate(@PathVariable Long commentId,
-                                 @RequestBody @Valid CommentAdminRequestDto requestDto) {
+                                 @RequestBody CommentAdminRequestDto requestDto) {
         log.info("Request received PATCH /admin/comments/commentId={}: comment {}", commentId, requestDto);
         CommentDto moderatedComment = service.moderate(commentId, requestDto);
         log.info("Request PATCH /admin/comments/commentId={} processed: comment:{} is moderated",
