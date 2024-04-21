@@ -32,10 +32,11 @@ public class Comment {
     @JoinColumn(name = "USER_ID")
     private User author;
 
+    @Column(name = "STATE")
+    @Enumerated(EnumType.STRING)
+    private CommentState state;
+
     @Column(name = "CREATED_TIME")
     private LocalDateTime created;
-
-    @Column(name = "STATE")
-    private CommentState state;
 
 }

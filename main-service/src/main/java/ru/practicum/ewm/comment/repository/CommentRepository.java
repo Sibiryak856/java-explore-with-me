@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long>, QuerydslPredicateExecutor<Comment> {
 
-    List<Comment> findAllByEventIdAndStatusIs(Long eventId, CommentState commentState, PageRequest pageRequest);
+    List<Comment> findAllByEventIdAndStateIs(Long eventId, CommentState commentState, PageRequest pageRequest);
 
-    List<Comment> findAllByEventIdInAndStatusIs(List<Long> eventIds, CommentState commentState);
+    List<Comment> findAllByEventIdInAndStateIs(List<Long> eventIds, CommentState state);
 }

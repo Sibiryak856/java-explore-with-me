@@ -142,7 +142,7 @@ public class CommentServiceImpl implements CommentService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event id=%d not found", eventId)));
         List<Comment> comments = commentRepository
-                .findAllByEventIdAndStatusIs(eventId, CommentState.PUBLISHED, pageRequest);
+                .findAllByEventIdAndStateIs(eventId, CommentState.PUBLISHED, pageRequest);
         return commentMapper.toListCommentDto(comments);
     }
 

@@ -28,7 +28,11 @@ public interface CommentMapper {
     List<CommentDto> toListCommentDto(List<Comment> comments);
 
     @Mapping(target = "id", ignore = true)
-    Comment toComment(CommentRequestDto createDto, User user, Event event, CommentState commentState, LocalDateTime now);
+    Comment toComment(CommentRequestDto createDto,
+                      User user,
+                      Event event,
+                      CommentState state,
+                      LocalDateTime now);
 
     Comment update(CommentRequestDto commentDto, @MappingTarget Comment comment);
 }

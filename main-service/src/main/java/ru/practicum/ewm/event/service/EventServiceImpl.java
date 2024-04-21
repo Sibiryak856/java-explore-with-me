@@ -403,7 +403,7 @@ public class EventServiceImpl implements EventService {
         List<Long> eventIds = events.stream()
                 .map(Event::getId)
                 .collect(Collectors.toList());
-        List<Comment> comments = commentRepository.findAllByEventIdInAndStatusIs(eventIds, CommentState.PUBLISHED);
+        List<Comment> comments = commentRepository.findAllByEventIdInAndStateIs(eventIds, CommentState.PUBLISHED);
 
         return comments.stream()
                 .collect(Collectors.groupingBy(comment -> comment.getEvent().getId()));
