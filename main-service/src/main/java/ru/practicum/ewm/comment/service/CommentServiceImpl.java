@@ -136,6 +136,7 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.toCommentDto(updatedComment);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<CommentDto> getAllPublishedByEvent(Long eventId, PageRequest pageRequest) {
         Event event = eventRepository.findById(eventId)
@@ -145,6 +146,7 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.toListCommentDto(comments);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public CommentDto getById(Long commentId) {
         Comment comment = commentRepository.findById(commentId)

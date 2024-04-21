@@ -6,7 +6,6 @@ import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ewm.comment.model.Comment;
 import ru.practicum.ewm.comment.model.CommentState;
-import ru.practicum.ewm.event.model.Event;
 
 import java.util.List;
 

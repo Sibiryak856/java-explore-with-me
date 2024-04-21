@@ -5,22 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.comment.dto.CommentAdminRequestDto;
 import ru.practicum.ewm.comment.dto.CommentDto;
-import ru.practicum.ewm.comment.model.CommentState;
 import ru.practicum.ewm.comment.service.CommentService;
 import ru.practicum.ewm.pagination.CustomPageRequest;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static ru.practicum.ewm.event.Constants.DATE_FORMAT;
 
 @RestController
 @Slf4j
