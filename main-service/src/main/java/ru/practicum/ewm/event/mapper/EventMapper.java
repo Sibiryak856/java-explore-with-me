@@ -49,7 +49,7 @@ public interface EventMapper {
     @Mapping(target = "eventDate", source = "event.eventDate", dateFormat = DATE_FORMAT)
     @Mapping(target = "confirmedRequests", source = "confirmedRequests", defaultValue = "0")
     @Mapping(target = "views", source = "views")
-    EventShortDto toShortDto(Event event, Long views, Long confirmedRequests) ;
+    EventShortDto toShortDto(Event event, Long views, Long confirmedRequests);
 
     @Mapping(target = "eventDate", source = "event.eventDate", dateFormat = DATE_FORMAT)
     @Mapping(target = "confirmedRequests", ignore = true, defaultValue = "0")
