@@ -47,7 +47,6 @@ public interface EventMapper {
     @Mapping(target = "publishedOn", source = "event.publishedOn", dateFormat = DATE_FORMAT)
     @Mapping(target = "confirmedRequests", source = "confirmedRequests", defaultValue = "0")
     @Mapping(target = "views", source = "views", defaultValue = "0L")
-    @Mapping(target = "views", source = "views", defaultValue = "0L")
     @Mapping(target = "comments", source = "comments")
     EventFullDto toFullDto(Event event, Long views, Long confirmedRequests, List<Comment> comments);
 
