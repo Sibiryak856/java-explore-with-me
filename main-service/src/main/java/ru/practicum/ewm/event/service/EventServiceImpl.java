@@ -9,6 +9,9 @@ import ru.practicum.ewm.StatsClient;
 import ru.practicum.ewm.ViewStatDto;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
+import ru.practicum.ewm.comment.model.Comment;
+import ru.practicum.ewm.comment.model.CommentState;
+import ru.practicum.ewm.comment.repository.CommentRepository;
 import ru.practicum.ewm.event.controller.SortQuery;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.mapper.EventMapper;
@@ -48,6 +51,8 @@ public class EventServiceImpl implements EventService {
     private CategoryRepository categoryRepository;
     private RequestRepository requestRepository;
     private RequestMapper requestMapper;
+
+    private CommentRepository commentRepository;
     private StatsClient client;
 
     @Autowired
@@ -57,13 +62,14 @@ public class EventServiceImpl implements EventService {
                             CategoryRepository categoryRepository,
                             RequestRepository requestRepository,
                             RequestMapper requestMapper,
-                            StatsClient client) {
+                            CommentRepository commentRepository, StatsClient client) {
         this.eventRepository = eventRepository;
         this.eventMapper = eventMapper;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.requestRepository = requestRepository;
         this.requestMapper = requestMapper;
+        this.commentRepository = commentRepository;
         this.client = client;
     }
 
@@ -77,7 +83,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException(String.format("Category id=%d not found", categoryId)));
         Event event = eventRepository.save(
                 eventMapper.toEvent(eventDto, user, category, EventState.PENDING));
-        return eventMapper.toFullDto(event, null, null);
+        return eventMapper.toFullDto(event, null, null, null);
     }
 
     @Transactional(readOnly = true)
@@ -111,9 +117,12 @@ public class EventServiceImpl implements EventService {
 
         Map<Long,Long> confirmedRequestMap = getConfirmedRequests(List.of(event));
 
+        Map<Long, List<Comment>> comments = getComments(List.of(event));
+
         return eventMapper.toFullDto(event,
                 viewStatMap.getOrDefault(eventId, 0L),
-                confirmedRequestMap.getOrDefault(eventId, 0L));
+                confirmedRequestMap.getOrDefault(eventId, 0L),
+                comments.getOrDefault(eventId, Collections.emptyList()));
     }
 
     @Transactional
@@ -144,7 +153,7 @@ public class EventServiceImpl implements EventService {
         Event updatedEvent = eventRepository.save(
                 eventMapper.update(updateEventDto, event));
 
-        return eventMapper.toFullDto(updatedEvent, null, null);
+        return eventMapper.toFullDto(updatedEvent, null, null, null);
 
     }
 
@@ -184,7 +193,9 @@ public class EventServiceImpl implements EventService {
 
         Map<Long,Long> confirmedRequestMap = getConfirmedRequests(events);
 
-        return eventMapper.toEventFullDtoList(events, viewStatMap, confirmedRequestMap);
+        Map<Long, List<Comment>> comments = getComments(events);
+
+        return eventMapper.toEventFullDtoList(events, viewStatMap, confirmedRequestMap, comments);
     }
 
     @Transactional
@@ -221,7 +232,7 @@ public class EventServiceImpl implements EventService {
         Event moderatedEvent = eventRepository.save(
                 eventMapper.update(updateEventDto, event));
 
-        return eventMapper.toFullDto(moderatedEvent, null, null);
+        return eventMapper.toFullDto(moderatedEvent, null, null, null);
     }
 
     @Transactional(readOnly = true)
@@ -237,9 +248,12 @@ public class EventServiceImpl implements EventService {
 
         Map<Long,Long> confirmedRequestMap = getConfirmedRequests(List.of(event));
 
+        Map<Long, List<Comment>> comments = getComments(List.of(event));
+
         return eventMapper.toFullDto(event,
                 viewStatMap.getOrDefault(id, 0L),
-                confirmedRequestMap.getOrDefault(id, 0L));
+                confirmedRequestMap.getOrDefault(id, 0L),
+                comments.getOrDefault(id, Collections.emptyList()));
     }
 
     @Transactional(readOnly = true)
@@ -380,5 +394,18 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toMap(
                         RequestsCountDto::getEventId, RequestsCountDto::getCountRequests));
 
+    }
+
+    private Map<Long, List<Comment>> getComments(List<Event> events) {
+        if (events.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        List<Comment> comments = commentRepository.findAllByEventIdInAndStatusIs(eventIds, CommentState.PUBLISHED);
+
+        return comments.stream()
+                .collect(Collectors.groupingBy(comment -> comment.getEvent().getId()));
     }
 }

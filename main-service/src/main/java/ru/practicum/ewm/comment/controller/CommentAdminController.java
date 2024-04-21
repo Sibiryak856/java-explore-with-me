@@ -6,15 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.comment.dto.CommentAdminRequestDto;
 import ru.practicum.ewm.comment.dto.CommentDto;
 import ru.practicum.ewm.comment.model.CommentState;
 import ru.practicum.ewm.comment.service.CommentService;
 import ru.practicum.ewm.pagination.CustomPageRequest;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
@@ -59,5 +58,15 @@ public class CommentAdminController {
         List<CommentDto> comments = service.getAll(users, statesList, events, rangeStart, rangeEnd, pageRequest);
         log.info("Request GET /admin/comments processed:{}", comments);
         return comments;
+    }
+
+    @PatchMapping("/{commentId}")
+    public CommentDto moderate(@PathVariable Long commentId,
+                                 @RequestBody @Valid CommentAdminRequestDto requestDto) {
+        log.info("Request received PATCH /admin/comments/commentId={}: comment {}", commentId, requestDto);
+        CommentDto moderatedComment = service.moderate(commentId, requestDto);
+        log.info("Request PATCH /admin/comments/commentId={} processed: comment:{} is moderated",
+                commentId, moderatedComment);
+        return moderatedComment;
     }
 }

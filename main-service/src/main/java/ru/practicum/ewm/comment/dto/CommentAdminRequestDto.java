@@ -19,7 +19,7 @@ import javax.validation.constraints.Size;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentAdminRequestDto extends CommentRequestDto {
 
-    private @Nullable UpdateEventAdminRequest.StateAction stateAction;
+    private @Nullable StateAction stateAction;
 
     public boolean isStateNeedUpdate() {
         return stateAction != null;

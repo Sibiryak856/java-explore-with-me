@@ -4,8 +4,9 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.comment.dto.CommentRequestDto;
+import ru.practicum.ewm.comment.dto.CommentAdminRequestDto;
 import ru.practicum.ewm.comment.dto.CommentDto;
+import ru.practicum.ewm.comment.dto.CommentRequestDto;
 import ru.practicum.ewm.comment.mapper.CommentMapper;
 import ru.practicum.ewm.comment.model.Comment;
 import ru.practicum.ewm.comment.model.CommentState;
@@ -40,6 +41,10 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new NotFoundException(String.format("User id=%d not found", userId)));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event id=%d not found", eventId)));
+        if (!event.getState().equals(EventState.PUBLISHED)) {
+            throw new NotAccessException(
+                    String.format("Cannot publish comment because event is not published yet"));
+        }
         Comment comment = commentRepository.save(
                 commentMapper.toComment(createDto, user, event, CommentState.PENDING, LocalDateTime.now()));
         return commentMapper.toCommentDto(comment);
@@ -99,5 +104,51 @@ public class CommentServiceImpl implements CommentService {
             comments = commentRepository.findAll(exp, pageRequest).getContent();
         }
         return commentMapper.toListCommentDto(comments);
+    }
+
+    @Transactional
+    @Override
+    public CommentDto moderate(Long commentId, CommentAdminRequestDto requestDto) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(String.format("Comment id=%d not found", commentId)));
+        if (!comment.getState().equals(EventState.PENDING)) {
+            throw new NotAccessException(
+                    String.format("Cannot publish the event because it's not in the right state: %s",
+                            comment.getState()));
+
+        }
+        if (requestDto.isStateNeedUpdate()) {
+            switch (requestDto.getStateAction()) {
+                case REJECT_COMMENT:
+                    comment.setState(CommentState.CANCELED);
+                    break;
+                case PUBLISH_COMMENT:
+                    comment.setState(CommentState.PUBLISHED);
+                    break;
+                default:
+                    throw new IllegalArgumentException(
+                            "Unknown state action: \"" + requestDto.getStateAction() + "\"");
+            }
+        }
+        Comment updatedComment = commentRepository.save(
+                commentMapper.update(requestDto, comment));
+
+        return commentMapper.toCommentDto(updatedComment);
+    }
+
+    @Override
+    public List<CommentDto> getAllPublishedByEvent(Long eventId, PageRequest pageRequest) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(String.format("Event id=%d not found", eventId)));
+        List<Comment> comments = commentRepository
+                .findAllByEventIdAndStatusIs(eventId, CommentState.PUBLISHED, pageRequest);
+        return commentMapper.toListCommentDto(comments);
+    }
+
+    @Override
+    public CommentDto getById(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException(String.format("Comment id=%d not found", commentId)));
+        return commentMapper.toCommentDto(comment);
     }
 }

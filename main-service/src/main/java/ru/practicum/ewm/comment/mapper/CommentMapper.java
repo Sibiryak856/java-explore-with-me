@@ -3,6 +3,7 @@ package ru.practicum.ewm.comment.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.comment.dto.CommentDto;
 import ru.practicum.ewm.comment.dto.CommentRequestDto;
@@ -17,7 +18,8 @@ import java.util.List;
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;
 
 @Component
-@Mapper(componentModel = SPRING)
+@Mapper(componentModel = SPRING,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CommentMapper {
 
     @Mapping(source = "author.name", target = "authorName")

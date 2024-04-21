@@ -6,6 +6,8 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.springframework.stereotype.Component;
 import ru.practicum.ewm.category.model.Category;
+import ru.practicum.ewm.comment.mapper.CommentMapper;
+import ru.practicum.ewm.comment.model.Comment;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.EventState;
@@ -13,6 +15,7 @@ import ru.practicum.ewm.user.mapper.UserMapper;
 import ru.practicum.ewm.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,7 +27,7 @@ import static ru.practicum.ewm.event.Constants.DATE_FORMAT;
 @Mapper(componentModel = SPRING,
         imports = {LocalDateTime.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        uses = UserMapper.class)
+        uses = {UserMapper.class, CommentMapper.class})
 public interface EventMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -44,7 +47,9 @@ public interface EventMapper {
     @Mapping(target = "publishedOn", source = "event.publishedOn", dateFormat = DATE_FORMAT)
     @Mapping(target = "confirmedRequests", source = "confirmedRequests", defaultValue = "0")
     @Mapping(target = "views", source = "views", defaultValue = "0L")
-    EventFullDto toFullDto(Event event, Long views, Long confirmedRequests);
+    @Mapping(target = "views", source = "views", defaultValue = "0L")
+    @Mapping(target = "comments", source = "comments")
+    EventFullDto toFullDto(Event event, Long views, Long confirmedRequests, List<Comment> comments);
 
     @Mapping(target = "eventDate", source = "event.eventDate", dateFormat = DATE_FORMAT)
     @Mapping(target = "confirmedRequests", source = "confirmedRequests", defaultValue = "0")
@@ -79,11 +84,13 @@ public interface EventMapper {
 
     default List<EventFullDto> toEventFullDtoList(List<Event> events,
                                                   Map<Long, Long> viewStatMap,
-                                                  Map<Long, Long> confirmedRequests) {
+                                                  Map<Long, Long> confirmedRequests,
+                                                  Map<Long, List<Comment>> comments) {
         return events.stream()
                 .map(event -> toFullDto(event,
                         viewStatMap.getOrDefault(event.getId(), 0L),
-                        confirmedRequests.getOrDefault(event.getId(), 0L)))
+                        confirmedRequests.getOrDefault(event.getId(), 0L),
+                        comments.getOrDefault(event.getId(), Collections.emptyList())))
                 .collect(Collectors.toList());
     }
 }
