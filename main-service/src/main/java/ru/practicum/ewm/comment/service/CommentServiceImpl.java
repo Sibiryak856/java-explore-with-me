@@ -111,7 +111,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto moderate(Long commentId, CommentAdminRequestDto requestDto) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(String.format("Comment id=%d not found", commentId)));
-        if (!comment.getState().equals(EventState.PENDING)) {
+        if (!comment.getState().equals(CommentState.PENDING)) {
             throw new NotAccessException(
                     String.format("Cannot publish the event because it's not in the right state: %s",
                             comment.getState()));
