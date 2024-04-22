@@ -16,6 +16,8 @@ import org.springframework.lang.Nullable;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CommentAdminRequestDto {
 
+    private Long id;
+
     private String text;
 
     private @Nullable StateAction stateAction;

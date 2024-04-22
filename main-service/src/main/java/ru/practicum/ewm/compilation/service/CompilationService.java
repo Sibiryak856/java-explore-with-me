@@ -10,7 +10,7 @@ import java.util.List;
 public interface CompilationService {
     CompilationDto save(NewCompilationDto dto);
 
-    void delete(Long compId);
+    void delete(long compId);
 
     CompilationDto update(long compId, UpdateCompilationDto dto);
 

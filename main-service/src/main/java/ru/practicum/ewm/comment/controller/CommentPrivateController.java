@@ -1,8 +1,8 @@
 package ru.practicum.ewm.comment.controller;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,51 +15,44 @@ import javax.validation.Valid;
 @RestController
 @Slf4j
 @Validated
-@RequestMapping("/users/{userId}/events/{eventId}/comments")
+@RequestMapping("/users/{userId}/events/comments")
+@RequiredArgsConstructor
 public class CommentPrivateController {
 
     private final CommentService service;
 
-    @Autowired
-    public CommentPrivateController(CommentService service) {
-        this.service = service;
-    }
-
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public CommentDto save(@PathVariable Long userId,
-                           @PathVariable Long eventId,
+    public CommentDto save(@PathVariable long userId,
                            @RequestBody @Valid CommentRequestDto createDto) {
-        log.info("Request received POST /users/userId={}/events/eventId={}/comments: comment {}",
-                userId, eventId, createDto);
-        CommentDto savedComment = service.save(userId, eventId, createDto);
-        log.info("Request POST /users/userId={}/events/eventId={}/comments: processed: event={} is created",
-                userId, eventId, savedComment);
+        log.info("Request received POST /users/userId={}/events/comments: comment {}",
+                userId, createDto);
+        CommentDto savedComment = service.save(userId, createDto);
+        log.info("Request POST /users/userId={}/events/comments: processed: event={} is created",
+                userId, savedComment);
         return savedComment;
     }
 
     @PatchMapping("/{commentId}")
-    public CommentDto update(@PathVariable Long userId,
-                             @PathVariable Long eventId,
-                             @PathVariable Long commentId,
+    public CommentDto update(@PathVariable long userId,
+                             @PathVariable long commentId,
                              @RequestBody @Valid CommentRequestDto commentDto) {
-        log.info("Request received PATCH /users/userId={}/events/eventId={}/comments/commentId={}: comment {}",
-                userId, eventId, commentId, commentDto);
-        CommentDto updatedComment = service.update(userId, eventId, commentId, commentDto);
-        log.info("Request PATCH /users/userId={}/events/eventId={}/comments/commentId={}: comment={} is updated",
-                userId, eventId, commentId, updatedComment);
+        log.info("Request received PATCH /users/userId={}/events/comments/commentId={}: comment {}",
+                userId, commentId, commentDto);
+        CommentDto updatedComment = service.update(userId, commentId, commentDto);
+        log.info("Request PATCH /users/userId={}/events/comments/commentId={}: comment={} is updated",
+                userId, commentId, updatedComment);
         return updatedComment;
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{commentId}")
-    public void delete(@PathVariable Long userId,
-                             @PathVariable Long eventId,
-                             @PathVariable Long commentId) {
-        log.info("Request received DELETE /users/userId={}/events/eventId={}/comments/commentId={} ",
-                userId, eventId, commentId);
+    public void delete(@PathVariable long userId,
+                       @PathVariable long commentId) {
+        log.info("Request received DELETE /users/userId={}/events/comments/commentId={} ",
+                userId, commentId);
         service.delete(commentId);
-        log.info("Request DELETE /users/userId={}/events/eventId={}/comments/commentId={} processed:",
-                userId, eventId, commentId);
+        log.info("Request DELETE /users/userId={}/events/comments/commentId={} processed:",
+                userId, commentId);
     }
 }

@@ -49,7 +49,7 @@ public class UserAdminController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{userId}")
-    public void delete(@PathVariable Long userId) {
+    public void delete(@PathVariable long userId) {
         log.info("Request received: DELETE /admin/users/userId={}", userId);
         service.delete(userId);
         log.info("Request DELETE /admin/users/userId processed");

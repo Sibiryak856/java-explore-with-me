@@ -1,7 +1,7 @@
 package ru.practicum.ewm.category.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
@@ -16,14 +16,10 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/categories")
+@RequiredArgsConstructor
 public class CategoryPublicController {
 
     private final CategoryService service;
-
-    @Autowired
-    public CategoryPublicController(CategoryService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public List<CategoryDto> getAll(
@@ -37,7 +33,7 @@ public class CategoryPublicController {
     }
 
     @GetMapping("/{catId}")
-    public CategoryDto getById(@PathVariable Long catId) {
+    public CategoryDto getById(@PathVariable long catId) {
         log.info("Request received: GET /categories/id={}", catId);
         CategoryDto categoryDto = service.getById(catId);
         log.info("Request GET /categories/id={} processed: {}", catId, categoryDto);

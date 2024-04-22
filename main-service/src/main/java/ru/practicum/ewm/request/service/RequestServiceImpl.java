@@ -1,5 +1,6 @@
 package ru.practicum.ewm.request.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.event.model.Event;
@@ -18,25 +19,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
 
-    public RequestRepository requestRepository;
+    private final RequestRepository requestRepository;
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    private EventRepository eventRepository;
+    private final EventRepository eventRepository;
 
-    private RequestMapper requestMapper;
-
-    public RequestServiceImpl(RequestRepository requestRepository,
-                              UserRepository userRepository,
-                              EventRepository eventRepository,
-                              RequestMapper requestMapper) {
-        this.requestRepository = requestRepository;
-        this.userRepository = userRepository;
-        this.eventRepository = eventRepository;
-        this.requestMapper = requestMapper;
-    }
+    private final RequestMapper requestMapper;
 
     @Transactional
     @Override

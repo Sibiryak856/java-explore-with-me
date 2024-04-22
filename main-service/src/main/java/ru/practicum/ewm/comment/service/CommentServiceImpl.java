@@ -1,7 +1,7 @@
 package ru.practicum.ewm.comment.service;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,11 +13,15 @@ import ru.practicum.ewm.comment.model.Comment;
 import ru.practicum.ewm.comment.model.CommentState;
 import ru.practicum.ewm.comment.model.QComment;
 import ru.practicum.ewm.comment.repository.CommentRepository;
+import ru.practicum.ewm.comment.requestModel.CommentAdminRequest;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.model.EventState;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotAccessException;
 import ru.practicum.ewm.exception.NotFoundException;
+import ru.practicum.ewm.request.RequestStatus;
+import ru.practicum.ewm.request.model.Request;
+import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
 
@@ -26,53 +30,59 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
-    public CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
 
-    private CommentMapper commentMapper;
+    private final CommentMapper commentMapper;
 
-    private UserRepository userRepository;
-    private EventRepository eventRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository,
-                              CommentMapper commentMapper,
-                              UserRepository userRepository,
-                              EventRepository eventRepository) {
-        this.commentRepository = commentRepository;
-        this.commentMapper = commentMapper;
-        this.userRepository = userRepository;
-        this.eventRepository = eventRepository;
-    }
+    private final EventRepository eventRepository;
+
+    private final RequestRepository requestRepository;
 
     @Transactional
     @Override
-    public CommentDto save(Long userId, Long eventId, CommentRequestDto createDto) {
+    public CommentDto save(long userId, CommentRequestDto createDto) {
+        List<Request> requests = requestRepository
+                .findByEventIdAndRequesterIdAndStatusIs(createDto.getEventId(), userId, RequestStatus.CONFIRMED);
+        if (requests.isEmpty()) {
+            throw new NotAccessException("Only participants can comment event");
+        }
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("User id=%d not found", userId)));
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(String.format("Event id=%d not found", eventId)));
+        Event event = eventRepository.findById(createDto.getEventId())
+                .orElseThrow(() ->
+                        new NotFoundException(String.format("Event id=%d not found", createDto.getEventId())));
         if (!event.getState().equals(EventState.PUBLISHED)) {
-            throw new NotAccessException(
-                    String.format("Cannot publish comment because event is not published yet"));
+            throw new NotAccessException("Cannot publish comment because event is not published yet");
         }
+        if (!createDto.getState().equals(CommentState.PENDING)) {
+            throw new NotAccessException("State must be PENDING at the time of creation");
+        }
+        createDto.setCreated(LocalDateTime.now());
         Comment comment = commentRepository.save(
-                commentMapper.toComment(createDto, event, user, CommentState.PENDING, LocalDateTime.now()));
+                commentMapper.toComment(createDto, event, user));
         return commentMapper.toCommentDto(comment);
     }
 
     @Transactional
     @Override
-    public CommentDto update(Long userId, Long eventId, Long commentId, CommentRequestDto commentDto) {
+    public CommentDto update(long userId, long commentId, CommentRequestDto commentDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("User id=%d not found", userId)));
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException(String.format("Event id=%d not found", eventId)));
+        Event event = eventRepository.findById(commentDto.getEventId())
+                .orElseThrow(() ->
+                        new NotFoundException(String.format("Event id=%d not found", commentDto.getEventId())));
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException(String.format("Comment id=%d not found", commentDto)));
+                .orElseThrow(() -> new NotFoundException(String.format("Comment id=%d not found", commentId)));
         if (comment.getState().equals(CommentState.PUBLISHED)) {
             throw new NotAccessException("Only pending or canceled comments can be changed");
+        }
+        if (commentDto.getState().equals(CommentState.PUBLISHED)) {
+            throw new NotAccessException("Only admin can set status PUBLISHED");
         }
         Comment updatedComment = commentRepository.save(
                 commentMapper.update(commentDto, comment));
@@ -81,28 +91,28 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public void delete(Long commentId) {
+    public void delete(long commentId) {
         commentRepository.deleteById(commentId);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<CommentDto> getAll(List<Long> users, List<CommentState> states, List<Long> events, LocalDateTime rangeStart, LocalDateTime rangeEnd, PageRequest pageRequest) {
+    public List<CommentDto> getAll(CommentAdminRequest request, PageRequest pageRequest) {
         QComment comment = QComment.comment;
 
         List<BooleanExpression> conditions = new ArrayList<>();
-        if (users != null && !users.isEmpty()) {
-            conditions.add(comment.author.id.in(users));
+        if (request.getUsers() != null && !request.getUsers() .isEmpty()) {
+            conditions.add(comment.author.id.in(request.getUsers() ));
         }
-        if (states != null && !states.isEmpty()) {
-            conditions.add(comment.state.in(states));
+        if (request.getStates() != null && !request.getStates().isEmpty()) {
+            conditions.add(comment.state.in(request.getStates()));
         }
-        if (events != null && !events.isEmpty()) {
-            comment.event.id.in(events);
+        if (request.getEvents() != null && !request.getEvents().isEmpty()) {
+            comment.event.id.in(request.getEvents());
         }
-        if (rangeStart != null && rangeEnd != null) {
-            if (rangeStart.isBefore(rangeEnd)) {
-                conditions.add(comment.created.between(rangeStart, rangeEnd));
+        if (request.getRangeStart() != null && request.getRangeEnd() != null) {
+            if (request.getRangeStart().isBefore(request.getRangeEnd())) {
+                conditions.add(comment.created.between(request.getRangeStart(), request.getRangeEnd()));
             }
         }
 
@@ -120,7 +130,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional
     @Override
-    public CommentDto moderate(Long commentId, CommentAdminRequestDto requestDto) {
+    public CommentDto moderate(long commentId, CommentAdminRequestDto requestDto) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(String.format("Comment id=%d not found", commentId)));
         if (!comment.getState().equals(CommentState.PENDING)) {
@@ -160,7 +170,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional(readOnly = true)
     @Override
-    public CommentDto getById(Long commentId) {
+    public CommentDto getById(long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException(String.format("Comment id=%d not found", commentId)));
         return commentMapper.toCommentDto(comment);

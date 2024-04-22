@@ -1,7 +1,7 @@
 package ru.practicum.ewm.event.service;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,39 +43,21 @@ import static ru.practicum.ewm.event.Constants.FORMATTER;
 import static ru.practicum.ewm.event.model.EventState.*;
 
 @Service
+@RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    public EventRepository eventRepository;
-    private EventMapper eventMapper;
-    private UserRepository userRepository;
-    private CategoryRepository categoryRepository;
-    private RequestRepository requestRepository;
-    private RequestMapper requestMapper;
-
-    private CommentRepository commentRepository;
-    private StatsClient client;
-
-    @Autowired
-    public EventServiceImpl(EventRepository eventRepository,
-                            EventMapper eventMapper,
-                            UserRepository userRepository,
-                            CategoryRepository categoryRepository,
-                            RequestRepository requestRepository,
-                            RequestMapper requestMapper,
-                            CommentRepository commentRepository, StatsClient client) {
-        this.eventRepository = eventRepository;
-        this.eventMapper = eventMapper;
-        this.userRepository = userRepository;
-        this.categoryRepository = categoryRepository;
-        this.requestRepository = requestRepository;
-        this.requestMapper = requestMapper;
-        this.commentRepository = commentRepository;
-        this.client = client;
-    }
+    private final EventRepository eventRepository;
+    private final EventMapper eventMapper;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
+    private final RequestMapper requestMapper;
+    private final CommentRepository commentRepository;
+    private final StatsClient client;
 
     @Transactional
     @Override
-    public EventFullDto save(Long userId, NewEventDto eventDto) {
+    public EventFullDto save(long userId, NewEventDto eventDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("User id=%d not found", userId)));
         long categoryId = eventDto.getCategoryId();
@@ -88,7 +70,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<EventShortDto> getAllByUserId(Long userId, PageRequest pageRequest) {
+    public List<EventShortDto> getAllByUserId(long userId, PageRequest pageRequest) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -106,7 +88,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public EventFullDto getByUserAndEventId(Long userId, Long eventId) {
+    public EventFullDto getByUserAndEventId(long userId, long eventId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -127,7 +109,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventFullDto update(Long userId, Long eventId, UpdateEventUserRequest updateEventDto) {
+    public EventFullDto update(long userId, long eventId, UpdateEventUserRequest updateEventDto) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -193,14 +175,13 @@ public class EventServiceImpl implements EventService {
 
         Map<Long,Long> confirmedRequestMap = getConfirmedRequests(events);
 
-        Map<Long, List<Comment>> comments = getComments(events);
 
-        return eventMapper.toEventFullDtoList(events, viewStatMap, confirmedRequestMap, comments);
+        return eventMapper.toEventFullDtoList(events, viewStatMap, confirmedRequestMap);
     }
 
     @Transactional
     @Override
-    public EventFullDto moderate(Long eventId, UpdateEventAdminRequest updateEventDto) {
+    public EventFullDto moderate(long eventId, UpdateEventAdminRequest updateEventDto) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
         if (!event.getState().equals(EventState.PENDING)) {
@@ -237,7 +218,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public EventFullDto getById(Long id) {
+    public EventFullDto getById(long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", id)));
         if (!event.getState().equals(PUBLISHED)) {
@@ -308,7 +289,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<RequestDto> getRequestByEventId(Long userId, Long eventId) {
+    public List<RequestDto> getRequestByEventId(long userId, long eventId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -321,8 +302,8 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventRequestStatusUpdateResult updateRequestsStatus(
-            Long userId,
-            Long eventId,
+            long userId,
+            long eventId,
             EventRequestStatusUpdateRequest request) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));

@@ -1,7 +1,7 @@
 package ru.practicum.ewm.event.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -26,18 +26,14 @@ import java.util.List;
 @Validated
 @Slf4j
 @RequestMapping("/users/{userId}/events")
+@RequiredArgsConstructor
 public class EventPrivateController {
 
     private final EventService service;
 
-    @Autowired
-    public EventPrivateController(EventService service) {
-        this.service = service;
-    }
-
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public EventFullDto save(@PathVariable Long userId,
+    public EventFullDto save(@PathVariable long userId,
                              @RequestBody @Valid NewEventDto eventDto) {
         log.info("Request received POST /users/userId={}/events: event {}", userId, eventDto);
         EventFullDto savedEvent = service.save(userId, eventDto);
@@ -47,7 +43,7 @@ public class EventPrivateController {
 
     @GetMapping
     public List<EventShortDto> getAllByUser(
-            @PathVariable Long userId,
+            @PathVariable long userId,
             @PositiveOrZero @RequestParam(value = "from", defaultValue = "0", required = false) Integer from,
             @Positive @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         log.info("Request received: GET /users/userId={}/events: from={}, size={}", userId, from, size);
@@ -59,8 +55,8 @@ public class EventPrivateController {
 
     @GetMapping("/{eventId}")
     public EventFullDto getByUserAndEventId(
-            @PathVariable Long userId,
-            @PathVariable Long eventId) {
+            @PathVariable long userId,
+            @PathVariable long eventId) {
         log.info("Request received: GET /users/userId={}/events/eventId={}", userId, eventId);
         EventFullDto fullDto = service.getByUserAndEventId(userId, eventId);
         log.info("Request GET /users/userId={}/events/eventId={} processed:{}", userId, eventId, fullDto);
@@ -68,8 +64,8 @@ public class EventPrivateController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto update(@PathVariable Long userId,
-                               @PathVariable Long eventId,
+    public EventFullDto update(@PathVariable long userId,
+                               @PathVariable long eventId,
                                @RequestBody @Valid UpdateEventUserRequest updateEventDto) {
         log.info("Request received PATCH /users/userId={}/events/eventId={}: event {}",
                 userId, eventId, updateEventDto);
@@ -80,8 +76,8 @@ public class EventPrivateController {
     }
 
     @GetMapping("/{eventId}/requests")
-    public List<RequestDto> getRequestsByEvent(@PathVariable Long userId,
-                                               @PathVariable Long eventId) {
+    public List<RequestDto> getRequestsByEvent(@PathVariable long userId,
+                                               @PathVariable long eventId) {
         log.info("Request received: GET /users/userId={}/events/eventId={}/requests", userId, eventId);
         List<RequestDto> requests = service.getRequestByEventId(userId, eventId);
         log.info("Request GET /users/userId={}/events/eventId={}/requests processed:{}", userId, eventId, requests);
@@ -90,8 +86,8 @@ public class EventPrivateController {
 
     @PatchMapping("/{eventId}/requests")
     public EventRequestStatusUpdateResult updateRequestStatus(
-            @PathVariable Long userId,
-            @PathVariable Long eventId,
+            @PathVariable long userId,
+            @PathVariable long eventId,
             @RequestBody @Valid EventRequestStatusUpdateRequest request) {
         log.info("Request received PATCH /users/userId={}/events/eventId={}/requests: request {}",
                 userId, eventId, request);

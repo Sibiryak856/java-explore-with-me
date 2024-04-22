@@ -1,8 +1,8 @@
 package ru.practicum.ewm.comment.controller;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
@@ -17,14 +17,10 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequestMapping("/comments")
+@RequiredArgsConstructor
 public class CommentPublicController {
 
     private final CommentService service;
-
-    @Autowired
-    public CommentPublicController(CommentService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public List<CommentDto> getAllByEvent(
@@ -39,7 +35,7 @@ public class CommentPublicController {
     }
 
     @GetMapping("/{commentId}")
-    public CommentDto getById(@PathVariable Long commentId) {
+    public CommentDto getById(@PathVariable long commentId) {
         log.info("Request received: GET /admin/comments/commentId={}:", commentId);
         CommentDto comment = service.getById(commentId);
         log.info("Request GET /admin/comments/commentId={} processed: comment={}", commentId, comment);

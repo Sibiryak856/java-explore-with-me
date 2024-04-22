@@ -15,7 +15,6 @@ import ru.practicum.ewm.user.mapper.UserMapper;
 import ru.practicum.ewm.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -83,13 +82,12 @@ public interface EventMapper {
 
     default List<EventFullDto> toEventFullDtoList(List<Event> events,
                                                   Map<Long, Long> viewStatMap,
-                                                  Map<Long, Long> confirmedRequests,
-                                                  Map<Long, List<Comment>> comments) {
+                                                  Map<Long, Long> confirmedRequests) {
         return events.stream()
                 .map(event -> toFullDto(event,
                         viewStatMap.getOrDefault(event.getId(), 0L),
                         confirmedRequests.getOrDefault(event.getId(), 0L),
-                        comments.getOrDefault(event.getId(), Collections.emptyList())))
+                        null))
                 .collect(Collectors.toList());
     }
 }

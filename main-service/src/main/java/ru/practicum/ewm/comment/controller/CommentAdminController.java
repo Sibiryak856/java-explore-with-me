@@ -1,8 +1,8 @@
 package ru.practicum.ewm.comment.controller;
 
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.comment.dto.CommentAdminRequestDto;
 import ru.practicum.ewm.comment.dto.CommentDto;
 import ru.practicum.ewm.comment.model.CommentState;
+import ru.practicum.ewm.comment.requestModel.CommentAdminRequest;
 import ru.practicum.ewm.comment.service.CommentService;
 import ru.practicum.ewm.pagination.CustomPageRequest;
 
@@ -24,14 +25,10 @@ import static ru.practicum.ewm.event.Constants.DATE_FORMAT;
 @RestController
 @Slf4j
 @RequestMapping("/admin/comments")
+@RequiredArgsConstructor
 public class CommentAdminController {
 
     private final CommentService service;
-
-    @Autowired
-    public CommentAdminController(CommentService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public List<CommentDto> getAll(
@@ -54,13 +51,15 @@ public class CommentAdminController {
             statesList = null;
         }
         PageRequest pageRequest = new CustomPageRequest(from, size, Sort.unsorted());
-        List<CommentDto> comments = service.getAll(users, statesList, events, rangeStart, rangeEnd, pageRequest);
+        List<CommentDto> comments = service.getAll(
+                new CommentAdminRequest(users, statesList, events, rangeStart, rangeEnd),
+                pageRequest);
         log.info("Request GET /admin/comments processed:{}", comments);
         return comments;
     }
 
     @PatchMapping("/{commentId}")
-    public CommentDto moderate(@PathVariable Long commentId,
+    public CommentDto moderate(@PathVariable long commentId,
                                  @RequestBody CommentAdminRequestDto requestDto) {
         log.info("Request received PATCH /admin/comments/commentId={}: comment {}", commentId, requestDto);
         CommentDto moderatedComment = service.moderate(commentId, requestDto);
