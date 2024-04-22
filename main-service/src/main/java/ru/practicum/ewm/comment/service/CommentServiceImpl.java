@@ -101,8 +101,8 @@ public class CommentServiceImpl implements CommentService {
         QComment comment = QComment.comment;
 
         List<BooleanExpression> conditions = new ArrayList<>();
-        if (request.getUsers() != null && !request.getUsers() .isEmpty()) {
-            conditions.add(comment.author.id.in(request.getUsers() ));
+        if (request.getUsers() != null && !request.getUsers().isEmpty()) {
+            conditions.add(comment.author.id.in(request.getUsers()));
         }
         if (request.getStates() != null && !request.getStates().isEmpty()) {
             conditions.add(comment.state.in(request.getStates()));
