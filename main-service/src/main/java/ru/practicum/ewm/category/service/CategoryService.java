@@ -10,9 +10,9 @@ public interface CategoryService {
 
     CategoryDto save(CategoryRequestDto dto);
 
-    CategoryDto update(Long id, CategoryRequestDto dto);
+    CategoryDto update(long id, CategoryRequestDto dto);
 
-    void delete(Long id);
+    void delete(long id);
 
     List<CategoryDto> getAll(Pageable pageable);
 

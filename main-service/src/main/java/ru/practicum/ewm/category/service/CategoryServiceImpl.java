@@ -1,6 +1,6 @@
 package ru.practicum.ewm.category.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,19 +16,12 @@ import ru.practicum.ewm.exception.NotFoundException;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
-    public CategoryRepository categoryRepository;
-    private EventRepository eventRepository;
-
-    private CategoryMapper mapper;
-
-    @Autowired
-    public CategoryServiceImpl(CategoryRepository repository, EventRepository eventRepository, CategoryMapper mapper) {
-        this.categoryRepository = repository;
-        this.eventRepository = eventRepository;
-        this.mapper = mapper;
-    }
+    public final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
+    private final CategoryMapper mapper;
 
     @Transactional
     @Override
@@ -40,7 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public CategoryDto update(Long id, CategoryRequestDto dto) {
+    public CategoryDto update(long id, CategoryRequestDto dto) {
         Category updatingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Category with id=%d was not found", id)));
         updatingCategory.setName(dto.getName());
@@ -49,7 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public void delete(Long id) {
+    public void delete(long id) {
         if (eventRepository.countByCategoryId(id) > 0) {
             throw new NotAccessException("The category is not empty");
         }

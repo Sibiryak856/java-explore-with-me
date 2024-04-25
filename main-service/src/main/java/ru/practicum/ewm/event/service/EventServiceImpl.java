@@ -1,7 +1,7 @@
 package ru.practicum.ewm.event.service;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +9,9 @@ import ru.practicum.ewm.StatsClient;
 import ru.practicum.ewm.ViewStatDto;
 import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.repository.CategoryRepository;
+import ru.practicum.ewm.comment.model.Comment;
+import ru.practicum.ewm.comment.model.CommentState;
+import ru.practicum.ewm.comment.repository.CommentRepository;
 import ru.practicum.ewm.event.controller.SortQuery;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.mapper.EventMapper;
@@ -40,36 +43,21 @@ import static ru.practicum.ewm.event.Constants.FORMATTER;
 import static ru.practicum.ewm.event.model.EventState.*;
 
 @Service
+@RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
 
-    public EventRepository eventRepository;
-    private EventMapper eventMapper;
-    private UserRepository userRepository;
-    private CategoryRepository categoryRepository;
-    private RequestRepository requestRepository;
-    private RequestMapper requestMapper;
-    private StatsClient client;
-
-    @Autowired
-    public EventServiceImpl(EventRepository eventRepository,
-                            EventMapper eventMapper,
-                            UserRepository userRepository,
-                            CategoryRepository categoryRepository,
-                            RequestRepository requestRepository,
-                            RequestMapper requestMapper,
-                            StatsClient client) {
-        this.eventRepository = eventRepository;
-        this.eventMapper = eventMapper;
-        this.userRepository = userRepository;
-        this.categoryRepository = categoryRepository;
-        this.requestRepository = requestRepository;
-        this.requestMapper = requestMapper;
-        this.client = client;
-    }
+    private final EventRepository eventRepository;
+    private final EventMapper eventMapper;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
+    private final RequestMapper requestMapper;
+    private final CommentRepository commentRepository;
+    private final StatsClient client;
 
     @Transactional
     @Override
-    public EventFullDto save(Long userId, NewEventDto eventDto) {
+    public EventFullDto save(long userId, NewEventDto eventDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(String.format("User id=%d not found", userId)));
         long categoryId = eventDto.getCategoryId();
@@ -77,12 +65,12 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new NotFoundException(String.format("Category id=%d not found", categoryId)));
         Event event = eventRepository.save(
                 eventMapper.toEvent(eventDto, user, category, EventState.PENDING));
-        return eventMapper.toFullDto(event, null, null);
+        return eventMapper.toFullDto(event, null, null, null);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<EventShortDto> getAllByUserId(Long userId, PageRequest pageRequest) {
+    public List<EventShortDto> getAllByUserId(long userId, PageRequest pageRequest) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -100,7 +88,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public EventFullDto getByUserAndEventId(Long userId, Long eventId) {
+    public EventFullDto getByUserAndEventId(long userId, long eventId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -111,14 +99,17 @@ public class EventServiceImpl implements EventService {
 
         Map<Long,Long> confirmedRequestMap = getConfirmedRequests(List.of(event));
 
+        Map<Long, List<Comment>> comments = getComments(List.of(event));
+
         return eventMapper.toFullDto(event,
                 viewStatMap.getOrDefault(eventId, 0L),
-                confirmedRequestMap.getOrDefault(eventId, 0L));
+                confirmedRequestMap.getOrDefault(eventId, 0L),
+                comments.getOrDefault(eventId, Collections.emptyList()));
     }
 
     @Transactional
     @Override
-    public EventFullDto update(Long userId, Long eventId, UpdateEventUserRequest updateEventDto) {
+    public EventFullDto update(long userId, long eventId, UpdateEventUserRequest updateEventDto) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -144,7 +135,7 @@ public class EventServiceImpl implements EventService {
         Event updatedEvent = eventRepository.save(
                 eventMapper.update(updateEventDto, event));
 
-        return eventMapper.toFullDto(updatedEvent, null, null);
+        return eventMapper.toFullDto(updatedEvent, null, null, null);
 
     }
 
@@ -184,12 +175,13 @@ public class EventServiceImpl implements EventService {
 
         Map<Long,Long> confirmedRequestMap = getConfirmedRequests(events);
 
+
         return eventMapper.toEventFullDtoList(events, viewStatMap, confirmedRequestMap);
     }
 
     @Transactional
     @Override
-    public EventFullDto moderate(Long eventId, UpdateEventAdminRequest updateEventDto) {
+    public EventFullDto moderate(long eventId, UpdateEventAdminRequest updateEventDto) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", eventId)));
         if (!event.getState().equals(EventState.PENDING)) {
@@ -221,12 +213,12 @@ public class EventServiceImpl implements EventService {
         Event moderatedEvent = eventRepository.save(
                 eventMapper.update(updateEventDto, event));
 
-        return eventMapper.toFullDto(moderatedEvent, null, null);
+        return eventMapper.toFullDto(moderatedEvent, null, null, null);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public EventFullDto getById(Long id) {
+    public EventFullDto getById(long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Event with id=%d was not found", id)));
         if (!event.getState().equals(PUBLISHED)) {
@@ -237,9 +229,12 @@ public class EventServiceImpl implements EventService {
 
         Map<Long,Long> confirmedRequestMap = getConfirmedRequests(List.of(event));
 
+        Map<Long, List<Comment>> comments = getComments(List.of(event));
+
         return eventMapper.toFullDto(event,
                 viewStatMap.getOrDefault(id, 0L),
-                confirmedRequestMap.getOrDefault(id, 0L));
+                confirmedRequestMap.getOrDefault(id, 0L),
+                comments.getOrDefault(id, Collections.emptyList()));
     }
 
     @Transactional(readOnly = true)
@@ -294,7 +289,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<RequestDto> getRequestByEventId(Long userId, Long eventId) {
+    public List<RequestDto> getRequestByEventId(long userId, long eventId) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
         }
@@ -307,8 +302,8 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventRequestStatusUpdateResult updateRequestsStatus(
-            Long userId,
-            Long eventId,
+            long userId,
+            long eventId,
             EventRequestStatusUpdateRequest request) {
         if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("User with id=%d was not found", userId));
@@ -380,5 +375,18 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toMap(
                         RequestsCountDto::getEventId, RequestsCountDto::getCountRequests));
 
+    }
+
+    private Map<Long, List<Comment>> getComments(List<Event> events) {
+        if (events.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+        List<Comment> comments = commentRepository.findAllByEventIdInAndStateIs(eventIds, CommentState.PUBLISHED);
+
+        return comments.stream()
+                .collect(Collectors.groupingBy(comment -> comment.getEvent().getId()));
     }
 }

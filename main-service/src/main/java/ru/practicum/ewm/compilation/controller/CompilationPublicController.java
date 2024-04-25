@@ -1,9 +1,10 @@
 package ru.practicum.ewm.compilation.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.service.CompilationService;
@@ -15,11 +16,12 @@ import java.util.List;
 
 @RestController
 @Slf4j
+@Validated
 @RequestMapping("/compilations")
+@RequiredArgsConstructor
 public class CompilationPublicController {
 
-    @Autowired
-    private CompilationService service;
+    private final CompilationService service;
 
     @GetMapping
     public List<CompilationDto> getAll(
@@ -34,7 +36,7 @@ public class CompilationPublicController {
     }
 
     @GetMapping("/{compId}")
-    public CompilationDto getById(@PathVariable Long compId) {
+    public CompilationDto getById(@PathVariable long compId) {
         log.info("Request received: GET /compilations/compId={}", compId);
         CompilationDto compilation = service.getById(compId);
         log.info("Request GET /compilations/compId={} processed: {}", compId, compilation);

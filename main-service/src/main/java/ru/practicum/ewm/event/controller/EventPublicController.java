@@ -2,7 +2,6 @@ package ru.practicum.ewm.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -34,10 +33,8 @@ import static ru.practicum.ewm.event.controller.SortQuery.EVENT_DATE;
 @RequiredArgsConstructor
 public class EventPublicController {
 
-    @Autowired
     private final EventService service;
-    @Autowired
-    private StatsClient client;
+    private final StatsClient client;
 
     @GetMapping
     public List<EventShortDto> getAll(
@@ -80,11 +77,9 @@ public class EventPublicController {
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getById(@PathVariable Long id,
+    public EventFullDto getById(@PathVariable long id,
                                 HttpServletRequest request) {
         log.info("Request received: GET /events/id={} from ip={}", id, request.getRemoteAddr());
-        String ip = request.getRemoteAddr();
-        String path = request.getRequestURI();
         EventFullDto fullDto = service.getById(id);
         log.info("Request GET /events/id={} processed:{}", id, fullDto);
         StatDataCreateDto createDto = StatDataCreateDto.builder()

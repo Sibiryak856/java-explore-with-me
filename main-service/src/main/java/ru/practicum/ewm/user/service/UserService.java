@@ -12,5 +12,5 @@ public interface UserService {
 
     List<UserDto> getAll(List<Long> ids, Pageable pageable);
 
-    void delete(Long id);
+    void delete(long id);
 }

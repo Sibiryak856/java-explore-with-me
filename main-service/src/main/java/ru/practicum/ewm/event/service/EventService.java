@@ -12,25 +12,25 @@ import java.util.List;
 
 public interface EventService {
 
-    EventFullDto save(Long userId, NewEventDto eventDto);
+    EventFullDto save(long userId, NewEventDto eventDto);
 
-    List<EventShortDto> getAllByUserId(Long userId, PageRequest pageRequest);
+    List<EventShortDto> getAllByUserId(long userId, PageRequest pageRequest);
 
-    EventFullDto getByUserAndEventId(Long userId, Long eventId);
+    EventFullDto getByUserAndEventId(long userId, long eventId);
 
-    EventFullDto update(Long userId, Long eventId, UpdateEventUserRequest updateEventDto);
+    EventFullDto update(long userId, long eventId, UpdateEventUserRequest updateEventDto);
 
-    List<RequestDto> getRequestByEventId(Long userId, Long eventId);
+    List<RequestDto> getRequestByEventId(long userId, long eventId);
 
-    EventRequestStatusUpdateResult updateRequestsStatus(Long userId,
-                                                        Long eventId,
+    EventRequestStatusUpdateResult updateRequestsStatus(long userId,
+                                                        long eventId,
                                                         EventRequestStatusUpdateRequest request);
 
     List<EventFullDto> getAll(EventAdminRequest request, PageRequest pageRequest);
 
-    EventFullDto moderate(Long eventId, UpdateEventAdminRequest updateEventDto);
+    EventFullDto moderate(long eventId, UpdateEventAdminRequest updateEventDto);
 
-    EventFullDto getById(Long id);
+    EventFullDto getById(long id);
 
     List<EventShortDto> getAll(EventPublicRequest request,
                                String sort,

@@ -1,6 +1,6 @@
 package ru.practicum.ewm.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.StatDataCreateDto;
@@ -13,16 +13,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class StatServiceImpl implements StatService {
 
-    public StatRepository statRepository;
-    private StatDataMapper mapper;
-
-    @Autowired
-    public StatServiceImpl(StatRepository statRepository, StatDataMapper mapper) {
-        this.statRepository = statRepository;
-        this.mapper = mapper;
-    }
+    private final StatRepository statRepository;
+    private final StatDataMapper mapper;
 
     @Transactional
     @Override

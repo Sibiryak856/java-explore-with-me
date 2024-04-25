@@ -1,7 +1,7 @@
 package ru.practicum.ewm.event.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,14 +27,10 @@ import static ru.practicum.ewm.event.Constants.DATE_FORMAT;
 @Validated
 @Slf4j
 @RequestMapping("/admin/events")
+@RequiredArgsConstructor
 public class EventAdminController {
 
     private final EventService service;
-
-    @Autowired
-    public EventAdminController(EventService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public List<EventFullDto> getAll(
@@ -65,7 +61,7 @@ public class EventAdminController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto moderate(@PathVariable Long eventId,
+    public EventFullDto moderate(@PathVariable long eventId,
                                  @RequestBody @Valid UpdateEventAdminRequest updateEventDto) {
         log.info("Request received PATCH /admin/events/eventId={}: event {}", eventId, updateEventDto);
         EventFullDto moderatedEvent = service.moderate(eventId, updateEventDto);

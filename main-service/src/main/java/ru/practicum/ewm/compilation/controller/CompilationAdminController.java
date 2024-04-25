@@ -1,7 +1,7 @@
 package ru.practicum.ewm.compilation.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +16,10 @@ import javax.validation.Valid;
 @Slf4j
 @Validated
 @RequestMapping("/admin/compilations")
+@RequiredArgsConstructor
 public class CompilationAdminController {
 
-    @Autowired
-    private CompilationService service;
+    private final CompilationService service;
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
@@ -32,14 +32,14 @@ public class CompilationAdminController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{compId}")
-    public void delete(@PathVariable Long compId) {
+    public void delete(@PathVariable long compId) {
         log.info("Request received: DELETE /admin/compilations/compId={}", compId);
         service.delete(compId);
         log.info("Request DELETE /admin/compilations/compId={} processed", compId);
     }
 
     @PatchMapping("/{compId}")
-    public CompilationDto update(@PathVariable Long compId,
+    public CompilationDto update(@PathVariable long compId,
                                  @RequestBody @Valid UpdateCompilationDto dto) {
         log.info("Request received: PATCH /admin/compilations/compId={}: update: {}", compId, dto);
         CompilationDto updatedCompilation = service.update(compId, dto);

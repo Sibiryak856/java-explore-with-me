@@ -1,7 +1,7 @@
 package ru.practicum.ewm.category.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.category.dto.CategoryDto;
@@ -13,14 +13,10 @@ import javax.validation.Valid;
 @RestController
 @Slf4j
 @RequestMapping("/admin/categories")
+@RequiredArgsConstructor
 public class CategoryAdminController {
 
     private final CategoryService service;
-
-    @Autowired
-    public CategoryAdminController(CategoryService service) {
-        this.service = service;
-    }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
@@ -32,7 +28,7 @@ public class CategoryAdminController {
     }
 
     @PatchMapping("/{catId}")
-    public CategoryDto update(@PathVariable Long catId,
+    public CategoryDto update(@PathVariable long catId,
                               @RequestBody @Valid CategoryRequestDto categoryRequestDto) {
         log.info("Request received: PATCH /admin/categories/{}: {}",catId, categoryRequestDto);
         CategoryDto updatedCategory = service.update(catId, categoryRequestDto);
@@ -42,7 +38,7 @@ public class CategoryAdminController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{catId}")
-    public void delete(@PathVariable Long catId) {
+    public void delete(@PathVariable long catId) {
         log.info("Request received: DELETE /admin/categories/id={}", catId);
         service.delete(catId);
         log.info("Request DELETE /admin/categories/id={} processed", catId);

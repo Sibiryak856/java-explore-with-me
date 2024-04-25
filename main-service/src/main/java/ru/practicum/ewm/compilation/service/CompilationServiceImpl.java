@@ -1,6 +1,6 @@
 package ru.practicum.ewm.compilation.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,34 +10,19 @@ import ru.practicum.ewm.compilation.dto.UpdateCompilationDto;
 import ru.practicum.ewm.compilation.mapper.CompilationMapper;
 import ru.practicum.ewm.compilation.model.Compilation;
 import ru.practicum.ewm.compilation.repository.CompilationRepository;
-import ru.practicum.ewm.event.mapper.EventMapper;
 import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exception.NotFoundException;
-import ru.practicum.ewm.request.repository.RequestRepository;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CompilationServiceImpl implements CompilationService {
 
-    public CompilationRepository compilationRepository;
-
-    private CompilationMapper compilationMapper;
-
-    private EventRepository eventRepository;
-
-    private RequestRepository requestRepository;
-    private EventMapper eventMapper;
-
-    @Autowired
-    public CompilationServiceImpl(CompilationRepository compilationRepository, CompilationMapper compilationMapper, EventRepository eventRepository, RequestRepository requestRepository, EventMapper eventMapper) {
-        this.compilationRepository = compilationRepository;
-        this.compilationMapper = compilationMapper;
-        this.eventRepository = eventRepository;
-        this.requestRepository = requestRepository;
-        this.eventMapper = eventMapper;
-    }
+    private final CompilationRepository compilationRepository;
+    private final CompilationMapper compilationMapper;
+    private final EventRepository eventRepository;
 
     @Transactional
     @Override
@@ -55,7 +40,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Transactional
     @Override
-    public void delete(Long compId) {
+    public void delete(long compId) {
         compilationRepository.deleteById(compId);
     }
 
